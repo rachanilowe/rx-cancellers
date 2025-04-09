@@ -69,6 +69,9 @@ case object RxCancellersKey extends Field[Option[RxCancellersParams]](None)
 trait CanHavePeripheryRxCancellers { this: BaseSubsystem =>
   private val portName = "cancellers"
 
+  // private val sbus = locateTLBusWrapper(SBUS)
+  private val pbus = locateTLBusWrapper(PBUS)
+
   val rxcancellers = p(RxCancellersKey) match {
     case Some(params) => {
       val rxcanceller = LazyModule(new RxCancellersTL(params, pbus.beatBytes)(p))
