@@ -1,15 +1,3 @@
-[0m[[0m[31merror[0m] [0m[0m/scratch/eecs251b-aal/sp25-project-chipyard-ethernet/generators/rx-cancellers/src/main/scala/CancellersTopModule.scala:34:29: not found: value tx0[0m
-[0m[[0m[31merror[0m] [0m[0m    echoCanceller.io.din := tx0[0m
-[0m[[0m[31merror[0m] [0m[0m                            ^[0m
-[0m[[0m[31merror[0m] [0m[0m/scratch/eecs251b-aal/sp25-project-chipyard-ethernet/generators/rx-cancellers/src/main/scala/CancellersTopModule.scala:35:30: not found: value tx1[0m
-[0m[[0m[31merror[0m] [0m[0m    nextCanceller1.io.din := tx1[0m
-[0m[[0m[31merror[0m] [0m[0m                             ^[0m
-[0m[[0m[31merror[0m] [0m[0m/scratch/eecs251b-aal/sp25-project-chipyard-ethernet/generators/rx-cancellers/src/main/scala/CancellersTopModule.scala:36:30: not found: value tx2[0m
-[0m[[0m[31merror[0m] [0m[0m    nextCanceller2.io.din := tx2[0m
-[0m[[0m[31merror[0m] [0m[0m                             ^[0m
-[0m[[0m[31merror[0m] [0m[0m/scratch/eecs251b-aal/sp25-project-chipyard-ethernet/generators/rx-cancellers/src/main/scala/CancellersTopModule.scala:37:30: not found: value tx3[0m
-[0m[[0m[31merror[0m] [0m[0m    nextCanceller3.io.din := tx3[0m
-[0m[[0m[31merror[0m] [0m[0m                             ^[0m
 [0m[[0m[31merror[0m] [0m[0m/scratch/eecs251b-aal/sp25-project-chipyard-ethernet/generators/rx-cancellers/src/main/scala/CancellersTopModule.scala:58:11: not found: type TLRegisterRouter[0m
 [0m[[0m[31merror[0m] [0m[0m  extends TLRegisterRouter([0m
 [0m[[0m[31merror[0m] [0m[0m          ^[0m
@@ -31,28 +19,16 @@
 [0m[[0m[31merror[0m] [0m[0m/scratch/eecs251b-aal/sp25-project-chipyard-ethernet/generators/rx-cancellers/src/main/scala/CancellersTopModule.scala:76:7: not found: value pbus[0m
 [0m[[0m[31merror[0m] [0m[0m      pbus.coupleTo(portName) { rxcanceller.node := TLFragmenter(pbus.beatBytes, pbus.blockBytes) := _ }[0m
 [0m[[0m[31merror[0m] [0m[0m      ^[0m
-[0m[[0m[31merror[0m] [0m[0m/scratch/eecs251b-aal/sp25-project-chipyard-ethernet/generators/rx-cancellers/src/main/scala/adaptiveFirFilter.scala:19:71: value reduceTree is not a member of IndexedSeq[chisel3.SInt][0m
-[0m[[0m[31merror[0m] [0m[0m  val firOutput = (weights.zip(shifters).map { case (c, d) => c * d }.reduceTree(_ + _) >> log2Ceil(tapCount))[0m
-[0m[[0m[31merror[0m] [0m[0m                                                                      ^[0m
-[0m[[0m[31merror[0m] [0m[0m/scratch/eecs251b-aal/sp25-project-chipyard-ethernet/generators/rx-cancellers/src/main/scala/adaptiveFirFilter.scala:39:9: not found: value dinValid[0m
-[0m[[0m[31merror[0m] [0m[0m  when (dinValid) {[0m
-[0m[[0m[31merror[0m] [0m[0m        ^[0m
-[0m[[0m[31merror[0m] [0m[0m/scratch/eecs251b-aal/sp25-project-chipyard-ethernet/generators/rx-cancellers/src/main/scala/adaptiveFirFilter.scala:46:6: value dataOut is not a member of chisel3.Bundle{val din: chisel3.SInt; val dinValid: chisel3.Bool; val dout: chisel3.SInt; val desired: chisel3.SInt; val doutValid: chisel3.Bool}[0m
-[0m[[0m[31merror[0m] [0m[0m  io.dataOut := firOutput[0m
-[0m[[0m[31merror[0m] [0m[0m     ^[0m
+[0m[[0m[31merror[0m] [0m[0m/scratch/eecs251b-aal/sp25-project-chipyard-ethernet/generators/rx-cancellers/src/main/scala/adaptiveFirFilter.scala:41:36: overloaded method apply with alternatives:[0m
+[0m[[0m[31merror[0m] [0m[0m  (in: Int)Int <and>[0m
+[0m[[0m[31merror[0m] [0m[0m  (in: BigInt)Int[0m
+[0m[[0m[31merror[0m] [0m[0m cannot be applied to (chisel3.SInt)[0m
+[0m[[0m[31merror[0m] [0m[0m      val deltaW = (shifters(i) << log2Ceil(error)) >> 5  // shifting for mu and error for efficiency[0m
+[0m[[0m[31merror[0m] [0m[0m                                   ^[0m
 [0m[[0m[31merror[0m] [0m[0m/scratch/eecs251b-aal/sp25-project-chipyard-ethernet/generators/rx-cancellers/src/main/scala/firSegment.scala:23:37: overloaded method apply with alternatives:[0m
 [0m[[0m[31merror[0m] [0m[0m  (in: Int)Int <and>[0m
 [0m[[0m[31merror[0m] [0m[0m  (in: BigInt)Int[0m
 [0m[[0m[31merror[0m] [0m[0m cannot be applied to (chisel3.SInt)[0m
 [0m[[0m[31merror[0m] [0m[0m      val deltaW = (io.inputs(i) << log2Ceil(io.error)) >> 5  // shifting for mu and error for efficiency[0m
 [0m[[0m[31merror[0m] [0m[0m                                    ^[0m
-[0m[[0m[31merror[0m] [0m[0m/scratch/eecs251b-aal/sp25-project-chipyard-ethernet/generators/rx-cancellers/src/main/scala/firSegment.scala:28:25: not found: value inputs[0m
-[0m[[0m[31merror[0m] [0m[0m  val sum = weights.zip(inputs).map { case (w, d) => w * d }.reduce(_ + _)[0m
-[0m[[0m[31merror[0m] [0m[0m                        ^[0m
-[0m[[0m[31merror[0m] [0m[0m/scratch/eecs251b-aal/sp25-project-chipyard-ethernet/generators/rx-cancellers/src/main/scala/firSegment.scala:28:56: value * is not a member of Any[0m
-[0m[[0m[31merror[0m] [0m[0m  val sum = weights.zip(inputs).map { case (w, d) => w * d }.reduce(_ + _)[0m
-[0m[[0m[31merror[0m] [0m[0m                                                       ^[0m
-[0m[[0m[31merror[0m] [0m[0m/scratch/eecs251b-aal/sp25-project-chipyard-ethernet/generators/rx-cancellers/src/main/scala/hybridAdaptiveFir.scala:89:6: value dataOut is not a member of chisel3.Bundle{val din: chisel3.SInt; val dinValid: chisel3.Bool; val dout: chisel3.SInt; val desired: chisel3.SInt; val doutValid: chisel3.Bool}[0m
-[0m[[0m[31merror[0m] [0m[0m  io.dataOut := firOutput[0m
-[0m[[0m[31merror[0m] [0m[0m     ^[0m
-[0m[[0m[31merror[0m] [0m[0m18 errors found[0m
+[0m[[0m[31merror[0m] [0m[0m9 errors found[0m

@@ -20,7 +20,7 @@ class FIRSegment(val segmentSize: Int) extends Module {
   // Tap-leakage update : w_i(n+1) = (1-alpha*mu)w_i(n) - alpha * e(n) * x(n)
   when (io.valid) {
     for (i <- 0 until segmentSize) {
-      val deltaW = (io.inputs(i) << log2Ceil(io.error)) >> 5  // shifting for mu and error for efficiency
+      val deltaW = (io.inputs(i) << log2Ceil(io.error.litValue)) >> 5  // shifting for mu and error for efficiency
       weights(i) := weights(i) + deltaW
     }
   }

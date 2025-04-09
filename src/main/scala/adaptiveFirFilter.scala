@@ -38,7 +38,7 @@ class AdaptiveFIRFilter(val tapCount: Int) extends Module {
   // Only update when we know the desired is Valid?
   when (io.dinValid) {
     for (i <- 0 until tapCount) {
-      val deltaW = (shifters(i) << log2Ceil(error)) >> 5  // shifting for mu and error for efficiency
+      val deltaW = (shifters(i) << log2Ceil(error.litValue)) >> 5  // shifting for mu and error for efficiency
       weights(i) := weights(i) + deltaW
     }
   }
