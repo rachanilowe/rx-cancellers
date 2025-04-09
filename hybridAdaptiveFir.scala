@@ -22,6 +22,8 @@ class HybridAdaptiveFIRFilter(val tapCount: Int, val segmentSize: Int) extends M
   // Delay line for weight claculation for the input 
   val numInputTrackingRegs = (numGroups * (segmentSize - 1) + (numGroups - 1))
   val inputWeightShifters = RegInit(VecInit(Seq.fill(numInputTrackingRegs)(0.S(18.W))))
+
+  // The last FIRSegment should be directly connected to (desired - dout) * mu
   val errorShifters = RegInit(VecInit(Seq.fill(numGroups - 1)(0.S(24.W))))
 
   // each group is a fir filter so we can use a simple fir module
@@ -48,13 +50,11 @@ class HybridAdaptiveFIRFilter(val tapCount: Int, val segmentSize: Int) extends M
     for (i <- 0 until (numGroups-1)) {
       segments(i).io.partialSum := outputShifters(i) // puts the patial sum of output reg i into seg i to add
       outputShifters(i) := segments(i+1).io.dout // puts the output of seg i+1 into output reg i
-
-      // Also will be shifting the error down
-      when(i == 0) {
-        
-      }
     }
   }
+
+  val firOutput := segments(0).io.dout
+  val error = io.desired - firOutput
 
   when(io.dinValid) {
     for (i <- 0 until numGroups) {
@@ -66,15 +66,23 @@ class HybridAdaptiveFIRFilter(val tapCount: Int, val segmentSize: Int) extends M
       segments(i).io.weightCalcIns := VecInit(sliceInputWeightShifters)
 
       // set error
-      segments(i).io.error := error
+      // This is when we are trying to feed error * mu directly into the final FIRSegment
+      if (i == numGroups - 1) {
+        segments(i).io.error := error >> 5 
+      } else {
+        segments(i).io.error := errorShifters(i)
+      }
 
       // set valid 
       segments(i).io.valid := dinValid
     }
   }
 
-  val firOutput := segments(0).io.dout
-  val error = io.desired - firOutput
+  // Shift the weight adjustment
+  for (i <- 1 until numGroups - 1) {
+    errorShifters(i) := errorShifters(i - 1)
+  }
+  errorShifters(0) := error >> 5 // mu = 1/32
 
   io.dataOut := firOutput
 }
