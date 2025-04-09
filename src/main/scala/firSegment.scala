@@ -1,7 +1,7 @@
+package cancellers
+
 import chisel3._
 import chisel3.util._
-
-package cancellers
 
 class FIRSegment(val segmentSize: Int) extends Module {
   val io = IO(new Bundle {
@@ -25,7 +25,7 @@ class FIRSegment(val segmentSize: Int) extends Module {
     }
   }
 
-  val sum = io.weights.zip(shifters).map { case (w, d) => w * d }.reduce(_ + _)
+  val sum = weights.zip(shifters).map { case (w, d) => w * d }.reduce(_ + _)
 
   io.dout := sum + io.partialSum
 }
