@@ -84,7 +84,7 @@ trait CanHavePeripheryRxCancellersImp extends LazyModuleImp {
   val outer: CanHavePeripheryRxCancellers
 }
 
-class WithRxCacnellers(params: RxCancellersParams) extends Config((site, here, up) => {
+class WithRxCancellers(params: RxCancellersParams) extends Config((site, here, up) => {
   // Store the parameters in the configuration under `SramBistKey`.
   case RxCancellersKey => Some(params)
 })
