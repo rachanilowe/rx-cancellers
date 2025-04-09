@@ -76,7 +76,7 @@ class HybridAdaptiveFIRFilter(val tapCount: Int, val segmentSize: Int) extends M
       }
 
       // set valid 
-      segments(i).io.valid := dinValid
+      segments(i).io.valid := io.dinValid
     }
   }
 

@@ -1,7 +1,85 @@
-[0m[[0m[31merror[0m] [0m[0m/scratch/eecs251b-aal/sp25-project-chipyard-ethernet/generators/rx-cancellers/src/main/scala/hybridAdaptiveFir.scala:58:31: '=' expected but '.' found.[0m
-[0m[[0m[31merror[0m] [0m[0m  val firOutput := segments(0).io.dout[0m
+[0m[[0m[31merror[0m] [0m[0m/scratch/eecs251b-aal/sp25-project-chipyard-ethernet/generators/rx-cancellers/src/main/scala/CancellersTopModule.scala:29:65: too many arguments (found 2, expected 1) for constructor AdaptiveFIRFilter: (tapCount: Int): cancellers.AdaptiveFIRFilter[0m
+[0m[[0m[31merror[0m] [0m[0m    val echoCaneller = Module(new AdaptiveFIRFilter(80, log2Ceil(80)))[0m
+[0m[[0m[31merror[0m] [0m[0m                                                                ^[0m
+[0m[[0m[31merror[0m] [0m[0m/scratch/eecs251b-aal/sp25-project-chipyard-ethernet/generators/rx-cancellers/src/main/scala/CancellersTopModule.scala:30:67: too many arguments (found 2, expected 1) for constructor AdaptiveFIRFilter: (tapCount: Int): cancellers.AdaptiveFIRFilter[0m
+[0m[[0m[31merror[0m] [0m[0m    val nextCanceller1 = Module(new AdaptiveFIRFilter(60, log2Ceil(60)))[0m
+[0m[[0m[31merror[0m] [0m[0m                                                                  ^[0m
+[0m[[0m[31merror[0m] [0m[0m/scratch/eecs251b-aal/sp25-project-chipyard-ethernet/generators/rx-cancellers/src/main/scala/CancellersTopModule.scala:31:67: too many arguments (found 2, expected 1) for constructor AdaptiveFIRFilter: (tapCount: Int): cancellers.AdaptiveFIRFilter[0m
+[0m[[0m[31merror[0m] [0m[0m    val nextCanceller2 = Module(new AdaptiveFIRFilter(60, log2Ceil(60)))[0m
+[0m[[0m[31merror[0m] [0m[0m                                                                  ^[0m
+[0m[[0m[31merror[0m] [0m[0m/scratch/eecs251b-aal/sp25-project-chipyard-ethernet/generators/rx-cancellers/src/main/scala/CancellersTopModule.scala:32:67: too many arguments (found 2, expected 1) for constructor AdaptiveFIRFilter: (tapCount: Int): cancellers.AdaptiveFIRFilter[0m
+[0m[[0m[31merror[0m] [0m[0m    val nextCanceller3 = Module(new AdaptiveFIRFilter(60, log2Ceil(60)))[0m
+[0m[[0m[31merror[0m] [0m[0m                                                                  ^[0m
+[0m[[0m[31merror[0m] [0m[0m/scratch/eecs251b-aal/sp25-project-chipyard-ethernet/generators/rx-cancellers/src/main/scala/CancellersTopModule.scala:34:5: not found: value echoCanceller[0m
+[0m[[0m[31merror[0m] [0m[0m    echoCanceller.io.din := tx0[0m
+[0m[[0m[31merror[0m] [0m[0m    ^[0m
+[0m[[0m[31merror[0m] [0m[0m/scratch/eecs251b-aal/sp25-project-chipyard-ethernet/generators/rx-cancellers/src/main/scala/CancellersTopModule.scala:34:29: not found: value tx0[0m
+[0m[[0m[31merror[0m] [0m[0m    echoCanceller.io.din := tx0[0m
+[0m[[0m[31merror[0m] [0m[0m                            ^[0m
+[0m[[0m[31merror[0m] [0m[0m/scratch/eecs251b-aal/sp25-project-chipyard-ethernet/generators/rx-cancellers/src/main/scala/CancellersTopModule.scala:39:5: not found: value echoCanceller[0m
+[0m[[0m[31merror[0m] [0m[0m    echoCanceller.io.desired := io.desired[0m
+[0m[[0m[31merror[0m] [0m[0m    ^[0m
+[0m[[0m[31merror[0m] [0m[0m/scratch/eecs251b-aal/sp25-project-chipyard-ethernet/generators/rx-cancellers/src/main/scala/CancellersTopModule.scala:44:5: not found: value echoCanceller[0m
+[0m[[0m[31merror[0m] [0m[0m    echoCanceller.io.dinValid :=  Mux(io.txValid, true.B, false.B)[0m
+[0m[[0m[31merror[0m] [0m[0m    ^[0m
+[0m[[0m[31merror[0m] [0m[0m/scratch/eecs251b-aal/sp25-project-chipyard-ethernet/generators/rx-cancellers/src/main/scala/CancellersTopModule.scala:50:23: not found: value echoCanceller[0m
+[0m[[0m[31merror[0m] [0m[0m    val validOutput = echoCanceller.io.doutValid & nextCanceller1.io.doutValid & nextCanceller2.io.doutValid & nextCanceller3.io.doutValid[0m
+[0m[[0m[31merror[0m] [0m[0m                      ^[0m
+[0m[[0m[31merror[0m] [0m[0m/scratch/eecs251b-aal/sp25-project-chipyard-ethernet/generators/rx-cancellers/src/main/scala/CancellersTopModule.scala:51:8: value validOutput is not a member of cancellers.RxCancellerTopIO[0m
+[0m[[0m[31merror[0m] [0m[0m    io.validOutput := validOutput[0m
+[0m[[0m[31merror[0m] [0m[0m       ^[0m
+[0m[[0m[31merror[0m] [0m[0m/scratch/eecs251b-aal/sp25-project-chipyard-ethernet/generators/rx-cancellers/src/main/scala/CancellersTopModule.scala:54:25: reassignment to val[0m
+[0m[[0m[31merror[0m] [0m[0m    io.desiredCancelled = Mux(validOutput, io.desired - (echoCanceller.io.dout + nextCanceller1.io.dout + nextCanceller2.io.dout + nextCanceller3.io.dout), io.desired)[0m
+[0m[[0m[31merror[0m] [0m[0m                        ^[0m
+[0m[[0m[31merror[0m] [0m[0m/scratch/eecs251b-aal/sp25-project-chipyard-ethernet/generators/rx-cancellers/src/main/scala/CancellersTopModule.scala:58:11: not found: type TLRegisterRouter[0m
+[0m[[0m[31merror[0m] [0m[0m  extends TLRegisterRouter([0m
+[0m[[0m[31merror[0m] [0m[0m          ^[0m
+[0m[[0m[31merror[0m] [0m[0m/scratch/eecs251b-aal/sp25-project-chipyard-ethernet/generators/rx-cancellers/src/main/scala/CancellersTopModule.scala:57:30: not found: type SramBistParams[0m
+[0m[[0m[31merror[0m] [0m[0mclass RxCancellersTL(params: SramBistParams, beatBytes: Int)(implicit p: Parameters)[0m
+[0m[[0m[31merror[0m] [0m[0m                             ^[0m
+[0m[[0m[31merror[0m] [0m[0m/scratch/eecs251b-aal/sp25-project-chipyard-ethernet/generators/rx-cancellers/src/main/scala/CancellersTopModule.scala:60:15: unknown parameter name: beatBytes[0m
+[0m[[0m[31merror[0m] [0m[0m    beatBytes = beatBytes)([0m
+[0m[[0m[31merror[0m] [0m[0m              ^[0m
+[0m[[0m[31merror[0m] [0m[0m/scratch/eecs251b-aal/sp25-project-chipyard-ethernet/generators/rx-cancellers/src/main/scala/CancellersTopModule.scala:59:12: no arguments allowed for nullary constructor Object: (): Object[0m
+[0m[[0m[31merror[0m] [0m[0m    params.address, "srambist", Seq("eecs251b,srambist"),[0m
+[0m[[0m[31merror[0m] [0m[0m           ^[0m
+[0m[[0m[31merror[0m] [0m[0m/scratch/eecs251b-aal/sp25-project-chipyard-ethernet/generators/rx-cancellers/src/main/scala/CancellersTopModule.scala:61:11: not found: type TLRegBundle[0m
+[0m[[0m[31merror[0m] [0m[0m      new TLRegBundle(params, _) with RxCancellerTopIO)([0m
+[0m[[0m[31merror[0m] [0m[0m          ^[0m
+[0m[[0m[31merror[0m] [0m[0m/scratch/eecs251b-aal/sp25-project-chipyard-ethernet/generators/rx-cancellers/src/main/scala/CancellersTopModule.scala:62:11: not found: type TLRegModule[0m
+[0m[[0m[31merror[0m] [0m[0m      new TLRegModule(params, _, _) with CancellersTopModule)[0m
+[0m[[0m[31merror[0m] [0m[0m          ^[0m
+[0m[[0m[31merror[0m] [0m[0m/scratch/eecs251b-aal/sp25-project-chipyard-ethernet/generators/rx-cancellers/src/main/scala/CancellersTopModule.scala:75:63: not found: value pbus[0m
+[0m[[0m[31merror[0m] [0m[0m      val rxcanceller = LazyModule(new RxCancellersTL(params, pbus.beatBytes)(p))[0m
+[0m[[0m[31merror[0m] [0m[0m                                                              ^[0m
+[0m[[0m[31merror[0m] [0m[0m/scratch/eecs251b-aal/sp25-project-chipyard-ethernet/generators/rx-cancellers/src/main/scala/CancellersTopModule.scala:76:7: not found: value pbus[0m
+[0m[[0m[31merror[0m] [0m[0m      pbus.coupleTo(portName) { rxcanceller.node := TLFragmenter(pbus.beatBytes, pbus.blockBytes) := _ }[0m
+[0m[[0m[31merror[0m] [0m[0m      ^[0m
+[0m[[0m[31merror[0m] [0m[0m/scratch/eecs251b-aal/sp25-project-chipyard-ethernet/generators/rx-cancellers/src/main/scala/adaptiveFirFilter.scala:19:71: value reduceTree is not a member of IndexedSeq[chisel3.SInt][0m
+[0m[[0m[31merror[0m] [0m[0m  val firOutput = (weights.zip(shifters).map { case (c, d) => c * d }.reduceTree(_ + _) >> log2Ceil(tapCount))[0m
+[0m[[0m[31merror[0m] [0m[0m                                                                      ^[0m
+[0m[[0m[31merror[0m] [0m[0m/scratch/eecs251b-aal/sp25-project-chipyard-ethernet/generators/rx-cancellers/src/main/scala/adaptiveFirFilter.scala:39:9: not found: value dinValid[0m
+[0m[[0m[31merror[0m] [0m[0m  when (dinValid) {[0m
+[0m[[0m[31merror[0m] [0m[0m        ^[0m
+[0m[[0m[31merror[0m] [0m[0m/scratch/eecs251b-aal/sp25-project-chipyard-ethernet/generators/rx-cancellers/src/main/scala/adaptiveFirFilter.scala:46:6: value dataOut is not a member of chisel3.Bundle{val din: chisel3.SInt; val dinValid: chisel3.Bool; val dout: chisel3.SInt; val desired: chisel3.SInt; val doutValid: chisel3.Bool}[0m
+[0m[[0m[31merror[0m] [0m[0m  io.dataOut := firOutput[0m
+[0m[[0m[31merror[0m] [0m[0m     ^[0m
+[0m[[0m[31merror[0m] [0m[0m/scratch/eecs251b-aal/sp25-project-chipyard-ethernet/generators/rx-cancellers/src/main/scala/firSegment.scala:23:37: overloaded method apply with alternatives:[0m
+[0m[[0m[31merror[0m] [0m[0m  (in: Int)Int <and>[0m
+[0m[[0m[31merror[0m] [0m[0m  (in: BigInt)Int[0m
+[0m[[0m[31merror[0m] [0m[0m cannot be applied to (chisel3.SInt)[0m
+[0m[[0m[31merror[0m] [0m[0m      val deltaW = (io.inputs(i) << log2Ceil(io.error)) >> 5  // shifting for mu and error for efficiency[0m
+[0m[[0m[31merror[0m] [0m[0m                                    ^[0m
+[0m[[0m[31merror[0m] [0m[0m/scratch/eecs251b-aal/sp25-project-chipyard-ethernet/generators/rx-cancellers/src/main/scala/firSegment.scala:28:25: not found: value shifters[0m
+[0m[[0m[31merror[0m] [0m[0m  val sum = weights.zip(shifters).map { case (w, d) => w * d }.reduce(_ + _)[0m
+[0m[[0m[31merror[0m] [0m[0m                        ^[0m
+[0m[[0m[31merror[0m] [0m[0m/scratch/eecs251b-aal/sp25-project-chipyard-ethernet/generators/rx-cancellers/src/main/scala/firSegment.scala:28:58: value * is not a member of Any[0m
+[0m[[0m[31merror[0m] [0m[0m  val sum = weights.zip(shifters).map { case (w, d) => w * d }.reduce(_ + _)[0m
+[0m[[0m[31merror[0m] [0m[0m                                                         ^[0m
+[0m[[0m[31merror[0m] [0m[0m/scratch/eecs251b-aal/sp25-project-chipyard-ethernet/generators/rx-cancellers/src/main/scala/hybridAdaptiveFir.scala:79:31: not found: value dinValid[0m
+[0m[[0m[31merror[0m] [0m[0m      segments(i).io.valid := dinValid[0m
 [0m[[0m[31merror[0m] [0m[0m                              ^[0m
-[0m[[0m[31merror[0m] [0m[0m/scratch/eecs251b-aal/sp25-project-chipyard-ethernet/generators/rx-cancellers/src/main/scala/hybridAdaptiveFir.scala:59:1: illegal start of simple expression[0m
-[0m[[0m[31merror[0m] [0m[0m  val error = io.desired - firOutput[0m
-[0m[[0m[31merror[0m] [0m[0m^[0m
-[0m[[0m[31merror[0m] [0m[0mtwo errors found[0m
+[0m[[0m[31merror[0m] [0m[0m/scratch/eecs251b-aal/sp25-project-chipyard-ethernet/generators/rx-cancellers/src/main/scala/hybridAdaptiveFir.scala:89:6: value dataOut is not a member of chisel3.Bundle{val din: chisel3.SInt; val dinValid: chisel3.Bool; val dout: chisel3.SInt; val desired: chisel3.SInt; val doutValid: chisel3.Bool}[0m
+[0m[[0m[31merror[0m] [0m[0m  io.dataOut := firOutput[0m
+[0m[[0m[31merror[0m] [0m[0m     ^[0m
+[0m[[0m[31merror[0m] [0m[0m27 errors found[0m

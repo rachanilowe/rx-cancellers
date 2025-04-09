@@ -26,10 +26,10 @@ class CancellersTopModule(val tapCount: Int) extends Module {
   val io = IO(new RxCancellerTopIO) 
 
     // Instantiate three NEXT cancellers and one echo canceller
-    val echoCaneller = Module(new AdaptiveFIRFilter(80, log2Ceil(80)))
-    val nextCanceller1 = Module(new AdaptiveFIRFilter(60, log2Ceil(60)))
-    val nextCanceller2 = Module(new AdaptiveFIRFilter(60, log2Ceil(60)))
-    val nextCanceller3 = Module(new AdaptiveFIRFilter(60, log2Ceil(60)))
+    val echoCanceller = Module(new HybridAdaptiveFIRFilter(80, log2Ceil(80)))
+    val nextCanceller1 = Module(new HybridAdaptiveFIRFilter(60, log2Ceil(60)))
+    val nextCanceller2 = Module(new HybridAdaptiveFIRFilter(60, log2Ceil(60)))
+    val nextCanceller3 = Module(new HybridAdaptiveFIRFilter(60, log2Ceil(60)))
     
     echoCanceller.io.din := tx0
     nextCanceller1.io.din := tx1
@@ -48,13 +48,13 @@ class CancellersTopModule(val tapCount: Int) extends Module {
 
     // Might also need to check if the desired signal is valid?
     val validOutput = echoCanceller.io.doutValid & nextCanceller1.io.doutValid & nextCanceller2.io.doutValid & nextCanceller3.io.doutValid
-    io.validOutput := validOutput
+    io.doutValid := validOutput
     // Filtered data
     // if tx is not valid input then we are not cancelling anything
-    io.desiredCancelled = Mux(validOutput, io.desired - (echoCanceller.io.dout + nextCanceller1.io.dout + nextCanceller2.io.dout + nextCanceller3.io.dout), io.desired)
+    io.desiredCancelled := Mux(validOutput, io.desired - (echoCanceller.io.dout + nextCanceller1.io.dout + nextCanceller2.io.dout + nextCanceller3.io.dout), io.desired)
 }
 
-class RxCancellersTL(params: SramBistParams, beatBytes: Int)(implicit p: Parameters)
+class RxCancellersTL(params: RxCancellersParams, beatBytes: Int)(implicit p: Parameters)
   extends TLRegisterRouter(
     params.address, "srambist", Seq("eecs251b,srambist"),
     beatBytes = beatBytes)(
