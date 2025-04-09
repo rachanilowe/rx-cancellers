@@ -1,6 +1,8 @@
 import chisel3._
 import chisel3.util._
 
+package cancellers
+
 class HybridAdaptiveFIRFilter(val tapCount: Int, val segmentSize: Int) extends Module {
   require(tapCount % segmentSize == 0, "tapCount must be divisible by numSegments")
   // we can prob just have it be 4 bc 60 and 80 are both divisible by 4
