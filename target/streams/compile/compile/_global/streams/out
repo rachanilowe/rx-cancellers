@@ -1,13 +1,7 @@
-[0m[[0m[31merror[0m] [0m[0m/scratch/eecs251b-aal/sp25-project-chipyard-ethernet/generators/rx-cancellers/src/main/scala/firSegment.scala:6:1: '{' expected.[0m
-[0m[[0m[31merror[0m] [0m[0mclass FIRSegment(val segmentSize: Int) extends Module {[0m
-[0m[[0m[31merror[0m] [0m[0m^[0m
-[0m[[0m[31merror[0m] [0m[0m/scratch/eecs251b-aal/sp25-project-chipyard-ethernet/generators/rx-cancellers/src/main/scala/hybridAdaptiveFir.scala:6:1: '{' expected.[0m
-[0m[[0m[31merror[0m] [0m[0mclass HybridAdaptiveFIRFilter(val tapCount: Int, val segmentSize: Int) extends Module {[0m
-[0m[[0m[31merror[0m] [0m[0m^[0m
 [0m[[0m[31merror[0m] [0m[0m/scratch/eecs251b-aal/sp25-project-chipyard-ethernet/generators/rx-cancellers/src/main/scala/hybridAdaptiveFir.scala:58:31: '=' expected but '.' found.[0m
 [0m[[0m[31merror[0m] [0m[0m  val firOutput := segments(0).io.dout[0m
 [0m[[0m[31merror[0m] [0m[0m                              ^[0m
 [0m[[0m[31merror[0m] [0m[0m/scratch/eecs251b-aal/sp25-project-chipyard-ethernet/generators/rx-cancellers/src/main/scala/hybridAdaptiveFir.scala:59:1: illegal start of simple expression[0m
 [0m[[0m[31merror[0m] [0m[0m  val error = io.desired - firOutput[0m
 [0m[[0m[31merror[0m] [0m[0m^[0m
-[0m[[0m[31merror[0m] [0m[0mfour errors found[0m
+[0m[[0m[31merror[0m] [0m[0mtwo errors found[0m

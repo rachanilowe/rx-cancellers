@@ -55,7 +55,7 @@ class HybridAdaptiveFIRFilter(val tapCount: Int, val segmentSize: Int) extends M
     }
   }
 
-  val firOutput := segments(0).io.dout
+  val firOutput = segments(0).io.dout
   val error = io.desired - firOutput
 
   when(io.dinValid) {
