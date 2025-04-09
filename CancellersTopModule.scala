@@ -1,10 +1,14 @@
-package srambist
+package cancellers
 
 import chisel3._
 import chisel3.util._
+import org.chipsalliance.cde.config.{Parameters, Field, Config}
+import freechips.rocketchip.diplomacy._
+import freechips.rocketchip.regmapper._
+import freechips.rocketchip.subsystem._
+import freechips.rocketchip.tilelink._
 
-class CancellersTopModule(val tapCount: Int) extends Module {
-  val io = IO(new Bundle {
+class RxCancellerTopIO() extends Bundle {
     // different Tx signals coming from different twisted pairs
     val tx0 = Input(SInt(3.W)) // echo
     val tx1 = Input(SInt(3.W)) // next 1
@@ -16,7 +20,10 @@ class CancellersTopModule(val tapCount: Int) extends Module {
     val doutValid = Output(Bool()) 
     val desired   = Input(SInt(18.W)) // RX signal
     val desiredCancelled = Output(SInt(18.W)) // Cancelled RX signal
-  }) 
+}
+
+class CancellersTopModule(val tapCount: Int) extends Module {
+  val io = IO(new RxCancellerTopIO) 
 
     // Instantiate three NEXT cancellers and one echo canceller
     val echoCaneller = Module(new AdaptiveFIRFilter(80, log2Ceil(80)))
@@ -46,4 +53,39 @@ class CancellersTopModule(val tapCount: Int) extends Module {
     // if tx is not valid input then we are not cancelling anything
     io.desiredCancelled = Mux(validOutput, io.desired - (echoCanceller.io.dout + nextCanceller1.io.dout + nextCanceller2.io.dout + nextCanceller3.io.dout), io.desired)
 }
+
+class RxCancellersTL(params: SramBistParams, beatBytes: Int)(implicit p: Parameters)
+  extends TLRegisterRouter(
+    params.address, "srambist", Seq("eecs251b,srambist"),
+    beatBytes = beatBytes)(
+      new TLRegBundle(params, _) with RxCancellerTopIO)(
+      new TLRegModule(params, _, _) with CancellersTopModule)
+
+case class RxCancellersParams(
+)
+
+case object RxCancellersKey extends Field[Option[RxCancellersParams]](None)
+
+trait CanHavePeripheryRxCancellers { this: BaseSubsystem =>
+  private val portName = "rxcancellers"
+
+  // If `SramBistKey` is declared, initialize and connect the BIST peripheral.
+  val rxcancellers = p(RxCancellersKey) match {
+    case Some(params) => {
+      val rxcanceller = LazyModule(new RxCancellersTL(params, pbus.beatBytes)(p))
+      pbus.coupleTo(portName) { rxcanceller.node := TLFragmenter(pbus.beatBytes, pbus.blockBytes) := _ }
+      Some(rxcanceller)
+    }
+    case None => None
+  }
+}
+
+trait CanHavePeripheryRxCancellersImp extends LazyModuleImp {
+  val outer: CanHavePeripheryRxCancellers
+}
+
+class WithRxCacnellers(params: RxCancellersParams) extends Config((site, here, up) => {
+  // Store the parameters in the configuration under `SramBistKey`.
+  case RxCancellersKey => Some(params)
+})
     

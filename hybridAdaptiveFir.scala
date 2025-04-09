@@ -15,7 +15,7 @@ class HybridAdaptiveFIRFilter(val tapCount: Int, val segmentSize: Int) extends M
   // make sections divided with output pipeline registers where the 
   // partition count tells us how many taps we have per group
   val numGroups = tapCount / segmentSize
-  val numInputReg = numGroups * (segmentSize - 1)
+  val numInputReg = (numGroups * (segmentSize - 1)) + 1
   // maybe want too add one more register at the front
   val inputShifters = RegInit(VecInit(Seq.fill(numInputReg)(0.S(3.W))))
   val outputShifters = RegInit(VecInit(Seq.fill(numGroups - 1)(0.S(24.W))))
@@ -52,14 +52,8 @@ class HybridAdaptiveFIRFilter(val tapCount: Int, val segmentSize: Int) extends M
 
   when(io.dinValid) {
     for (i <- 0 until numGroups) {
-      // set input vector
-      if (i === 0) {
-        segments(i).io.inputs := VecInit(io.input +: inputShifters(0) +: inputShifters(1) +: inputShifters(2))
-      } else {
-        // grrrrr rachel think 
-        val slice = inputShifters.slice((i * (segmentSize - 1)) - 1, (i * (segmentSize - 1)) + (segmentSize - 1))
-        segments(i).io.inputs := VecInit(slice)
-      }
+      val slice = inputShifters.slice((i * (segmentSize - 1)), (i * (segmentSize - 1)) + (segmentSize - 1))
+      segments(i).io.inputs := VecInit(slice)
 
       // set input delay vector for weight calc
       val slice = inputWeightShifters.slice((i * (segmentSize - 1)) + 1, (i * (segmentSize - 1)) + (segmentSize + 1))
