@@ -2,26 +2,49 @@ import chisel3._
 import chiseltest._
 import org.scalatest.freespec.AnyFreeSpec
 
-import cancellers.RxCancellerTopIO
+import cancellers.CancellersTopModule
 
-class Wrapper(tx0: SInt, tx1: SInt, tx2: SInt, tx3: SInt, txValid: Bool, desired: SInt) extends Module {
-    val dut = Module(new RxCancellerTopIO)
-    dut.io.tx0 := tx0
-    dut.io.tx1 := tx1
-    dut.io.tx2 := tx2
-    dut.io.tx3 := tx3
-    dut.io.txValid := txValid
-    dut.io.desired := desired
+class Wrapper(tapCount: Int) extends Module {
+    val io = IO(new Bundle {
+        val tx0 = Input(SInt(3.W))
+        val tx1 = Input(SInt(3.W))
+        val tx2 = Input(SInt(3.W))
+        val tx3 = Input(SInt(3.W))
+        val txValid = Input(Bool())
+        val desired = Input(SInt(18.W))
+        val doutValid = Output(Bool())
+        val desiredCancelled = Output(SInt(18.W))
+    })
+    val dut = Module(new CancellersTopModule(tapCount))
+    dut.io.tx0 := io.tx0
+    dut.io.tx1 := io.tx1
+    dut.io.tx2 := io.tx2
+    dut.io.tx3 := io.tx3
+    dut.io.txValid := io.txValid
+    dut.io.desired := io.desired
+
+    io.doutValid := dut.io.doutValid
+    io.desiredCancelled := dut.io.desiredCancelled
 }            
 
-class FirFilterUnitTesting extends AnyFreeSpec with ChiselScalatestTester {
+class FirFilterTest extends AnyFreeSpec with ChiselScalatestTester {
 
-    "Test that Data Arrives at Right Time" in {
-        test(
-            new Wrapper()
-        ) { dut =>
+  "Basic echo functionality test" in {
+    test(
+      new Wrapper(
+        3
+      )
+    ).withAnnotations(Seq(WriteVcdAnnotation)) { dut =>
+      dut.io.tx0.poke(1.U(3.W))
+      dut.io.tx1.poke(0.U(3.W))
+      dut.io.tx2.poke(0.U(3.W))
+      dut.io.tx3.poke(0.U(3.W))
 
-        }
+      while (!dut.io.done.peek().litToBoolean) {
+        dut.clock.step()
+      }
+
+      dut.io.fail.expect(false.B)
     }
-
+  }
 }
