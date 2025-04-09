@@ -86,5 +86,5 @@ class HybridAdaptiveFIRFilter(val tapCount: Int, val segmentSize: Int) extends M
   }
   errorShifters(0) := error >> 5 // mu = 1/32
 
-  io.dataOut := firOutput
+  io.dout := firOutput
 }

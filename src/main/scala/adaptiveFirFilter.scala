@@ -16,7 +16,7 @@ class AdaptiveFIRFilter(val tapCount: Int) extends Module {
 
   val weights = VecInit(Seq.fill(tapCount)(0.S(8.W)))
 
-  val firOutput = (weights.zip(shifters).map { case (c, d) => c * d }.reduceTree(_ + _) >> log2Ceil(tapCount))
+  val firOutput = (weights.zip(shifters).map { case (c, d) => c * d }.reduce(_ + _) >> log2Ceil(tapCount))
 
   // only want to shift if dinValid == 1
   // Update delay line (Shift Register)
@@ -36,12 +36,12 @@ class AdaptiveFIRFilter(val tapCount: Int) extends Module {
   // Update weights using LMS: w_i(n+1) = w_i(n) + mu * e(n) * x(n-i+1)
   // Tap-leakage update : w_i(n+1) = (1-alpha*mu)w_i(n) - alpha * e(n) * x(n)
   // Only update when we know the desired is Valid?
-  when (dinValid) {
+  when (io.dinValid) {
     for (i <- 0 until tapCount) {
       val deltaW = (shifters(i) << log2Ceil(error)) >> 5  // shifting for mu and error for efficiency
       weights(i) := weights(i) + deltaW
     }
   }
   io.doutValid := io.dinValid
-  io.dataOut := firOutput
+  io.dout := firOutput
 }

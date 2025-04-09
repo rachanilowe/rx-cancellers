@@ -25,7 +25,7 @@ class FIRSegment(val segmentSize: Int) extends Module {
     }
   }
 
-  val sum = weights.zip(inputs).map { case (w, d) => w * d }.reduce(_ + _)
+  val sum = weights.zip(io.inputs).map { case (w, d) => w * d }.reduce(_ + _)
 
   io.dout := sum + io.partialSum
 }

@@ -31,10 +31,10 @@ class CancellersTopModule(val tapCount: Int) extends Module {
     val nextCanceller2 = Module(new HybridAdaptiveFIRFilter(60, log2Ceil(60)))
     val nextCanceller3 = Module(new HybridAdaptiveFIRFilter(60, log2Ceil(60)))
     
-    echoCanceller.io.din := tx0
-    nextCanceller1.io.din := tx1
-    nextCanceller2.io.din := tx2
-    nextCanceller3.io.din := tx3
+    echoCanceller.io.din := io.tx0
+    nextCanceller1.io.din := io.tx1
+    nextCanceller2.io.din := io.tx2
+    nextCanceller3.io.din := io.tx3
 
     echoCanceller.io.desired := io.desired
     nextCanceller1.io.desired := io.desired
