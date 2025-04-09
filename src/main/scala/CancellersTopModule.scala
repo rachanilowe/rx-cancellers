@@ -56,7 +56,7 @@ class CancellersTopModule(val tapCount: Int) extends Module {
 
 class RxCancellersTL(params: RxCancellersParams, beatBytes: Int)(implicit p: Parameters)
   extends TLRegisterRouter(
-    params.address, "srambist", Seq("eecs251b,srambist"),
+    "cancellers", Seq("eecs251b,cancellers"),
     beatBytes = beatBytes)(
       new TLRegBundle(params, _) with RxCancellerTopIO)(
       new TLRegModule(params, _, _) with CancellersTopModule)
@@ -67,9 +67,8 @@ case class RxCancellersParams(
 case object RxCancellersKey extends Field[Option[RxCancellersParams]](None)
 
 trait CanHavePeripheryRxCancellers { this: BaseSubsystem =>
-  private val portName = "rxcancellers"
+  private val portName = "cancellers"
 
-  // If `SramBistKey` is declared, initialize and connect the BIST peripheral.
   val rxcancellers = p(RxCancellersKey) match {
     case Some(params) => {
       val rxcanceller = LazyModule(new RxCancellersTL(params, pbus.beatBytes)(p))
@@ -85,7 +84,6 @@ trait CanHavePeripheryRxCancellersImp extends LazyModuleImp {
 }
 
 class WithRxCancellers(params: RxCancellersParams) extends Config((site, here, up) => {
-  // Store the parameters in the configuration under `SramBistKey`.
   case RxCancellersKey => Some(params)
 })
     
