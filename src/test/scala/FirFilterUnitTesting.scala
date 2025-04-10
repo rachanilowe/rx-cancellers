@@ -1,3 +1,5 @@
+package cancellers
+
 import chisel3._
 import chiseltest._
 import org.scalatest.freespec.AnyFreeSpec
@@ -29,16 +31,19 @@ class Wrapper(tapCount: Int) extends Module {
 
 class FirFilterTest extends AnyFreeSpec with ChiselScalatestTester {
 
+    // TODO: use actual data
   "Basic echo functionality test" in {
     test(
       new Wrapper(
         3
       )
     ).withAnnotations(Seq(WriteVcdAnnotation)) { dut =>
-      dut.io.tx0.poke(1.U(3.W))
-      dut.io.tx1.poke(0.U(3.W))
-      dut.io.tx2.poke(0.U(3.W))
-      dut.io.tx3.poke(0.U(3.W))
+      dut.io.tx0.poke(2.S(3.W))
+      dut.io.tx1.poke(0.S(3.W))
+      dut.io.tx2.poke(0.S(3.W))
+      dut.io.tx3.poke(0.S(3.W))
+      dut.io.txValid.poke(true.B)
+      dut.io.desired.poke(-3.S(18.W))
 
       while (!dut.io.done.peek().litToBoolean) {
         dut.clock.step()
