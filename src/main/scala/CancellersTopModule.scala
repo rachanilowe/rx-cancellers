@@ -17,19 +17,19 @@ class RxCancellerTopIO() extends Bundle {
     // don't know yet how TX digial will be outputing
     val txValid = Input(Bool()) // per Richard only need tx valid
 
-    val doutValid = Output(Bool()) 
+    // val doutValid = Output(Bool()) 
     val desired   = Input(SInt(18.W)) // RX signal
     val desiredCancelled = Output(SInt(18.W)) // Cancelled RX signal
 }
 
-class CancellersTopModule(val tapCount: Int) extends Module {
+class CancellersTopModule(val echoTapCount: Int, val nextTapCount: Int) extends Module {
   val io = IO(new RxCancellerTopIO) 
 
     // Instantiate three NEXT cancellers and one echo canceller
-    val echoCanceller = Module(new HybridAdaptiveFIRFilter(80, log2Ceil(80)))
-    val nextCanceller1 = Module(new HybridAdaptiveFIRFilter(60, log2Ceil(60)))
-    val nextCanceller2 = Module(new HybridAdaptiveFIRFilter(60, log2Ceil(60)))
-    val nextCanceller3 = Module(new HybridAdaptiveFIRFilter(60, log2Ceil(60)))
+    val echoCanceller = Module(new HybridAdaptiveFIRFilter(echoTapCount, 4))
+    val nextCanceller1 = Module(new HybridAdaptiveFIRFilter(nextTapCount, 4))
+    val nextCanceller2 = Module(new HybridAdaptiveFIRFilter(nextTapCount, 4))
+    val nextCanceller3 = Module(new HybridAdaptiveFIRFilter(nextTapCount, 4))
     
     echoCanceller.io.din := io.tx0
     nextCanceller1.io.din := io.tx1
@@ -47,11 +47,11 @@ class CancellersTopModule(val tapCount: Int) extends Module {
     nextCanceller3.io.dinValid := Mux(io.txValid, true.B, false.B)
 
     // Might also need to check if the desired signal is valid?
-    val validOutput = echoCanceller.io.doutValid & nextCanceller1.io.doutValid & nextCanceller2.io.doutValid & nextCanceller3.io.doutValid
-    io.doutValid := validOutput
+    // val validOutput = echoCanceller.io.doutValid & nextCanceller1.io.doutValid & nextCanceller2.io.doutValid & nextCanceller3.io.doutValid
+    // io.doutValid := validOutput
     // Filtered data
     // if tx is not valid input then we are not cancelling anything
-    io.desiredCancelled := Mux(validOutput, io.desired - (echoCanceller.io.dout + nextCanceller1.io.dout + nextCanceller2.io.dout + nextCanceller3.io.dout), io.desired)
+    io.desiredCancelled := io.desired - (echoCanceller.io.dout + nextCanceller1.io.dout + nextCanceller2.io.dout + nextCanceller3.io.dout)
 }
 
 // class RxCancellersTL(params: RxCancellersParams, beatBytes: Int)(implicit p: Parameters)
