@@ -12,6 +12,9 @@ class FIRSegment(val segmentSize: Int) extends Module {
     val partialSum = Input(SInt(24.W))
     val error = Input(SInt(24.W))
     val valid = Input(Bool())
+
+    // For debugging
+    val weightPeek = Output(Vec(segmentSize, SInt(8.W)))
   })
 
   val weights = RegInit(VecInit(Seq.fill(segmentSize)(0.S(8.W))))
@@ -28,4 +31,6 @@ class FIRSegment(val segmentSize: Int) extends Module {
   val sum = weights.zip(io.inputs).map { case (w, d) => w * d }.reduce(_ + _)
 
   io.dout := sum + io.partialSum
+
+  io.weightPeek := weights
 }
