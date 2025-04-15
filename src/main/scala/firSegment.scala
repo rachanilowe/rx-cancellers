@@ -21,7 +21,7 @@ class FIRSegment(val segmentSize: Int) extends Module {
   when (io.valid) {
     for (i <- 0 until segmentSize) {
       val deltaW = (io.weightCalcIns(i) * io.error)  // TODO: switch to shift later
-      weights(i) := weights(i) + deltaW
+      weights(i) := weights(i) - deltaW
     }
   }
 
