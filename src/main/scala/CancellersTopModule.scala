@@ -9,21 +9,32 @@ import freechips.rocketchip.subsystem._
 import freechips.rocketchip.tilelink._
 
 trait RxCancellerTopIO extends Bundle {
-    // different Tx signals coming from different twisted pairs
-    val tx0 = Input(SInt(3.W)) // echo
-    val tx1 = Input(SInt(3.W)) // next 1
-    val tx2 = Input(SInt(3.W)) // next 2
-    val tx3 = Input(SInt(3.W)) // next3
-    // don't know yet how TX digial will be outputing
-    val txValid = Input(Bool()) // per Richard only need tx valid
+    // // different Tx signals coming from different twisted pairs
+    // val tx0 = Input(SInt(3.W)) // echo
+    // val tx1 = Input(SInt(3.W)) // next 1
+    // val tx2 = Input(SInt(3.W)) // next 2
+    // val tx3 = Input(SInt(3.W)) // next3
+    // // don't know yet how TX digial will be outputing
+    // val txValid = Input(Bool()) // per Richard only need tx valid
 
-    // val doutValid = Output(Bool()) 
-    val desired   = Input(SInt(18.W)) // RX signal
-    val desiredCancelled = Output(SInt(18.W)) // Cancelled RX signal
+    // // val doutValid = Output(Bool()) 
+    // val desired   = Input(SInt(18.W)) // RX signal
+    // val desiredCancelled = Output(SInt(18.W)) // Cancelled RX signal
 }
 
-trait CancellersTopModule extends Module {
-  val io: RxCancellerTopIO
+class CancellersTopModule() extends Module {
+    val io = IO(new Bundle {
+      val tx0 = Input(SInt(5.W)) // echo
+      val tx1 = Input(SInt(5.W)) // next 1
+      val tx2 = Input(SInt(5.W)) // next 2
+      val tx3 = Input(SInt(5.W)) // next3
+      // don't know yet how TX digial will be outputing
+      val txValid = Input(Bool()) // per Richard only need tx valid
+
+      // val doutValid = Output(Bool()) 
+      val desired   = Input(SInt(18.W)) // RX signal
+      val desiredCancelled = Output(SInt(18.W)) // Cancelled RX signal
+    })
 
     // Instantiate three NEXT cancellers and one echo canceller
     val echoCanceller = Module(new HybridAdaptiveFIRFilter(80, 4))
@@ -54,12 +65,57 @@ trait CancellersTopModule extends Module {
     io.desiredCancelled := io.desired - (echoCanceller.io.dout + nextCanceller1.io.dout + nextCanceller2.io.dout + nextCanceller3.io.dout)
 }
 
+trait CancellersTop extends HasRegMap {
+    val io: RxCancellerTopIO
+    val cancellers = Module(new CancellersTopModule())
+
+    // Define a helper for read/write RegFields for SInt
+    def RegFieldSInt(width: Int, reg: SInt): RegField = {
+      RegField(width,
+        RegReadFn(reg.asUInt),  // Convert to UInt for reading
+        RegWriteFn((valid, data) => {
+          when(valid) {
+            reg := data.asSInt  // Convert back to SInt for writing
+          }
+          true.B
+        })
+      )
+    }
+
+    // registers for the tx
+    val tx0Reg = RegInit(0.S(5.W))
+    val tx1Reg = RegInit(0.S(5.W))
+    val tx2Reg = RegInit(0.S(5.W))
+    val tx3Reg = RegInit(0.S(5.W))
+    val txValidReg = RegInit(0.U(1.W))
+    val desiredSignalReg = RegInit(0.S(18.W))
+    val desiredCanceledReg = RegInit(0.S(18.W))
+
+    cancellers.io.tx0 := tx0Reg
+    cancellers.io.tx1 := tx1Reg
+    cancellers.io.tx2 := tx2Reg
+    cancellers.io.tx3 := tx3Reg
+    cancellers.io.txValid := txValidReg
+    cancellers.io.desired := desiredSignalReg
+    desiredCanceledReg := cancellers.io.desiredCancelled
+
+    regmap(
+      0x00 -> Seq(RegFieldSInt(5, tx0Reg)),
+      0x01 -> Seq(RegFieldSInt(5, tx1Reg)),
+      0x02 -> Seq(RegFieldSInt(5, tx2Reg)),
+      0x03 -> Seq(RegFieldSInt(5, tx3Reg)),
+      0x04 -> Seq(RegField(1, txValidReg)), // this one's fine as UInt
+      0x08 -> Seq(RegFieldSInt(18, desiredSignalReg)),
+      0x10 -> Seq(RegField.r(18, desiredCanceledReg.asUInt)) // read-only
+    )
+}
+
 class RxCancellersTL(params: RxCancellersParams, beatBytes: Int)(implicit p: Parameters)
   extends TLRegisterRouter(
     params.address, "cancellers", Seq("eecs251b,cancellers"),
     beatBytes = beatBytes)(
       new TLRegBundle(params, _) with RxCancellerTopIO)(
-      new TLRegModule(params, _, _) with CancellersTopModule)
+      new TLRegModule(params, _, _) with CancellersTop)
 
 case class RxCancellersParams(address: BigInt = 0x5000)
 

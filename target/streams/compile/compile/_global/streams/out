@@ -1,4 +1,7 @@
-[0m[[0m[31merror[0m] [0m[0m/scratch/eecs251b-aal/251b-proj/generators/rx-cancellers/src/main/scala/hybridAdaptiveFir.scala:105:6: value input0 is not a member of chisel3.Bundle{val din: chisel3.SInt; val dinValid: chisel3.Bool; val dout: chisel3.SInt; val desired: chisel3.SInt; val weightPeek: chisel3.Vec[chisel3.SInt]}[0m
-[0m[[0m[31merror[0m] [0m[0m  io.input0 := segments(0).io.inputs(0)[0m
-[0m[[0m[31merror[0m] [0m[0m     ^[0m
+[0m[[0m[31merror[0m] [0m[0m/scratch/eecs251b-aal/251b-proj/generators/rx-cancellers/src/main/scala/CancellersTopModule.scala:109:19: overloaded method apply with alternatives:[0m
+[0m[[0m[31merror[0m] [0m[0m  (n: Int,rw: chisel3.UInt)freechips.rocketchip.regmapper.RegField <and>[0m
+[0m[[0m[31merror[0m] [0m[0m  (n: Int,desc: freechips.rocketchip.regmapper.RegFieldDesc)freechips.rocketchip.regmapper.RegField[0m
+[0m[[0m[31merror[0m] [0m[0m cannot be applied to (Int, freechips.rocketchip.regmapper.RegReadFn)[0m
+[0m[[0m[31merror[0m] [0m[0m      0x10 -> Seq(RegField(18, RegReadFn(desiredCanceledReg.asUInt))) // read-only[0m
+[0m[[0m[31merror[0m] [0m[0m                  ^[0m
 [0m[[0m[31merror[0m] [0m[0mone error found[0m

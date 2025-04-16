@@ -7,7 +7,7 @@ class HybridAdaptiveFIRFilter(val tapCount: Int, val segmentSize: Int) extends M
   require(tapCount % segmentSize == 0, "tapCount must be divisible by numSegments")
   // we can prob just have it be 4 bc 60 and 80 are both divisible by 4
   val io = IO(new Bundle {
-    val din          = Input(SInt(3.W))
+    val din          = Input(SInt(5.W))
     val dinValid     = Input(Bool())
     val dout         = Output(SInt(18.W))
     val desired      = Input(SInt(18.W))
@@ -21,11 +21,11 @@ class HybridAdaptiveFIRFilter(val tapCount: Int, val segmentSize: Int) extends M
   val numGroups = tapCount / segmentSize
   val numInputReg = (numGroups * (segmentSize - 1)) + 1
   // maybe want too add one more register at the front
-  val inputShifters = RegInit(VecInit(Seq.fill(numInputReg)(0.S(3.W))))
+  val inputShifters = RegInit(VecInit(Seq.fill(numInputReg)(0.S(5.W))))
   val outputShifters = RegInit(VecInit(Seq.fill(numGroups - 1)(0.S(24.W))))
   // Delay line for weight claculation for the input 
   val numInputTrackingRegs = ((numGroups * (segmentSize - 1)) + numGroups)
-  val inputWeightShifters = RegInit(VecInit(Seq.fill(numInputTrackingRegs)(0.S(3.W))))
+  val inputWeightShifters = RegInit(VecInit(Seq.fill(numInputTrackingRegs)(0.S(5.W))))
 
   // The last FIRSegment should be directly connected to (desired - dout) * mu
   val errorShifters = RegInit(VecInit(Seq.fill(numGroups - 1)(0.S(24.W))))
@@ -34,8 +34,8 @@ class HybridAdaptiveFIRFilter(val tapCount: Int, val segmentSize: Int) extends M
   val segments = Seq.fill(numGroups)(Module(new FIRSegment(segmentSize)))
 
   for ((seg, idx) <- segments.zipWithIndex) {
-    seg.io.inputs := VecInit(Seq.fill(segmentSize)(0.S(3.W)))
-    seg.io.weightCalcIns := VecInit(Seq.fill(segmentSize)(0.S(3.W)))
+    seg.io.inputs := VecInit(Seq.fill(segmentSize)(0.S(5.W)))
+    seg.io.weightCalcIns := VecInit(Seq.fill(segmentSize)(0.S(5.W)))
     seg.io.partialSum := 0.S(24.W)
     seg.io.error := 0.S(24.W)
     seg.io.valid := false.B 
