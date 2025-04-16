@@ -2,13 +2,13 @@ package cancellers
 
 import chisel3._
 import chisel3.util._
-// import org.chipsalliance.cde.config.{Parameters, Field, Config}
-// import freechips.rocketchip.diplomacy._
-// import freechips.rocketchip.regmapper._
-// import freechips.rocketchip.subsystem._
-// import freechips.rocketchip.tilelink._
+import org.chipsalliance.cde.config.{Parameters, Field, Config}
+import freechips.rocketchip.diplomacy._
+import freechips.rocketchip.regmapper._
+import freechips.rocketchip.subsystem._
+import freechips.rocketchip.tilelink._
 
-class RxCancellerTopIO() extends Bundle {
+trait RxCancellerTopIO extends Bundle {
     // different Tx signals coming from different twisted pairs
     val tx0 = Input(SInt(3.W)) // echo
     val tx1 = Input(SInt(3.W)) // next 1
@@ -22,14 +22,14 @@ class RxCancellerTopIO() extends Bundle {
     val desiredCancelled = Output(SInt(18.W)) // Cancelled RX signal
 }
 
-class CancellersTopModule(val echoTapCount: Int, val nextTapCount: Int) extends Module {
-  val io = IO(new RxCancellerTopIO) 
+trait CancellersTopModule extends Module {
+  val io: RxCancellerTopIO
 
     // Instantiate three NEXT cancellers and one echo canceller
-    val echoCanceller = Module(new HybridAdaptiveFIRFilter(echoTapCount, 4))
-    val nextCanceller1 = Module(new HybridAdaptiveFIRFilter(nextTapCount, 4))
-    val nextCanceller2 = Module(new HybridAdaptiveFIRFilter(nextTapCount, 4))
-    val nextCanceller3 = Module(new HybridAdaptiveFIRFilter(nextTapCount, 4))
+    val echoCanceller = Module(new HybridAdaptiveFIRFilter(80, 4))
+    val nextCanceller1 = Module(new HybridAdaptiveFIRFilter(60, 4))
+    val nextCanceller2 = Module(new HybridAdaptiveFIRFilter(60, 4))
+    val nextCanceller3 = Module(new HybridAdaptiveFIRFilter(60, 4))
     
     echoCanceller.io.din := io.tx0
     nextCanceller1.io.din := io.tx1
@@ -54,39 +54,34 @@ class CancellersTopModule(val echoTapCount: Int, val nextTapCount: Int) extends 
     io.desiredCancelled := io.desired - (echoCanceller.io.dout + nextCanceller1.io.dout + nextCanceller2.io.dout + nextCanceller3.io.dout)
 }
 
-// class RxCancellersTL(params: RxCancellersParams, beatBytes: Int)(implicit p: Parameters)
-//   extends TLRegisterRouter(
-//     "cancellers", Seq("eecs251b,cancellers"),
-//     beatBytes = beatBytes)(
-//       new TLRegBundle(params, _) with RxCancellerTopIO)(
-//       new TLRegModule(params, _, _) with CancellersTopModule)
+class RxCancellersTL(params: RxCancellersParams, beatBytes: Int)(implicit p: Parameters)
+  extends TLRegisterRouter(
+    params.address, "cancellers", Seq("eecs251b,cancellers"),
+    beatBytes = beatBytes)(
+      new TLRegBundle(params, _) with RxCancellerTopIO)(
+      new TLRegModule(params, _, _) with CancellersTopModule)
 
-// case class RxCancellersParams(
-// )
+case class RxCancellersParams(address: BigInt = 0x5000)
 
-// case object RxCancellersKey extends Field[Option[RxCancellersParams]](None)
+case object RxCancellersKey extends Field[Option[RxCancellersParams]](None)
 
-// trait CanHavePeripheryRxCancellers { this: BaseSubsystem =>
-//   private val portName = "cancellers"
+trait CanHavePeripheryRxCancellers { this: BaseSubsystem =>
+  private val portName = "cancellers"
+  val rxcancellers = p(RxCancellersKey) match {
+    case Some(params) => {
+      val mod = LazyModule(new RxCancellersTL(params, pbus.beatBytes)(p))
+      pbus.coupleTo(portName) { mod.node := TLFragmenter(pbus.beatBytes, pbus.blockBytes) := _ }
+      Some(mod)
+    }
+    case None => None
+  }
+}
 
-//   // private val sbus = locateTLBusWrapper(SBUS)
-//   private val pbus = locateTLBusWrapper(PBUS)
+trait CanHavePeripheryRxCancellersImp extends LazyModuleImp {
+  val outer: CanHavePeripheryRxCancellers
+}
 
-//   val rxcancellers = p(RxCancellersKey) match {
-//     case Some(params) => {
-//       val rxcanceller = LazyModule(new RxCancellersTL(params, pbus.beatBytes)(p))
-//       pbus.coupleTo(portName) { rxcanceller.node := TLFragmenter(pbus.beatBytes, pbus.blockBytes) := _ }
-//       Some(rxcanceller)
-//     }
-//     case None => None
-//   }
-// }
-
-// trait CanHavePeripheryRxCancellersImp extends LazyModuleImp {
-//   val outer: CanHavePeripheryRxCancellers
-// }
-
-// class WithRxCancellers(params: RxCancellersParams) extends Config((site, here, up) => {
-//   case RxCancellersKey => Some(params)
-// })
+class WithRxCancellers(params: RxCancellersParams) extends Config((site, here, up) => {
+  case RxCancellersKey => Some(params)
+})
     

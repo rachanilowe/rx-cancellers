@@ -1,22 +1,4 @@
-[0m[[0m[31merror[0m] [0m[0m/scratch/eecs251b-aal/sp25-project-chipyard-ethernet/generators/rx-cancellers/src/main/scala/CancellersTopModule.scala:58:11: not found: type TLRegisterRouter[0m
-[0m[[0m[31merror[0m] [0m[0m  extends TLRegisterRouter([0m
-[0m[[0m[31merror[0m] [0m[0m          ^[0m
-[0m[[0m[31merror[0m] [0m[0m/scratch/eecs251b-aal/sp25-project-chipyard-ethernet/generators/rx-cancellers/src/main/scala/CancellersTopModule.scala:60:15: unknown parameter name: beatBytes[0m
-[0m[[0m[31merror[0m] [0m[0m    beatBytes = beatBytes)([0m
-[0m[[0m[31merror[0m] [0m[0m              ^[0m
-[0m[[0m[31merror[0m] [0m[0m/scratch/eecs251b-aal/sp25-project-chipyard-ethernet/generators/rx-cancellers/src/main/scala/CancellersTopModule.scala:59:5: no arguments allowed for nullary constructor Object: (): Object[0m
-[0m[[0m[31merror[0m] [0m[0m    "cancellers", Seq("eecs251b,cancellers"),[0m
-[0m[[0m[31merror[0m] [0m[0m    ^[0m
-[0m[[0m[31merror[0m] [0m[0m/scratch/eecs251b-aal/sp25-project-chipyard-ethernet/generators/rx-cancellers/src/main/scala/CancellersTopModule.scala:61:11: not found: type TLRegBundle[0m
-[0m[[0m[31merror[0m] [0m[0m      new TLRegBundle(params, _) with RxCancellerTopIO)([0m
-[0m[[0m[31merror[0m] [0m[0m          ^[0m
-[0m[[0m[31merror[0m] [0m[0m/scratch/eecs251b-aal/sp25-project-chipyard-ethernet/generators/rx-cancellers/src/main/scala/CancellersTopModule.scala:62:11: not found: type TLRegModule[0m
-[0m[[0m[31merror[0m] [0m[0m      new TLRegModule(params, _, _) with CancellersTopModule)[0m
-[0m[[0m[31merror[0m] [0m[0m          ^[0m
-[0m[[0m[31merror[0m] [0m[0m/scratch/eecs251b-aal/sp25-project-chipyard-ethernet/generators/rx-cancellers/src/main/scala/CancellersTopModule.scala:74:63: not found: value pbus[0m
-[0m[[0m[31merror[0m] [0m[0m      val rxcanceller = LazyModule(new RxCancellersTL(params, pbus.beatBytes)(p))[0m
-[0m[[0m[31merror[0m] [0m[0m                                                              ^[0m
-[0m[[0m[31merror[0m] [0m[0m/scratch/eecs251b-aal/sp25-project-chipyard-ethernet/generators/rx-cancellers/src/main/scala/CancellersTopModule.scala:75:7: not found: value pbus[0m
-[0m[[0m[31merror[0m] [0m[0m      pbus.coupleTo(portName) { rxcanceller.node := TLFragmenter(pbus.beatBytes, pbus.blockBytes) := _ }[0m
-[0m[[0m[31merror[0m] [0m[0m      ^[0m
-[0m[[0m[31merror[0m] [0m[0m7 errors found[0m
+[0m[[0m[31merror[0m] [0m[0m/scratch/eecs251b-aal/251b-proj/generators/rx-cancellers/src/main/scala/hybridAdaptiveFir.scala:105:6: value input0 is not a member of chisel3.Bundle{val din: chisel3.SInt; val dinValid: chisel3.Bool; val dout: chisel3.SInt; val desired: chisel3.SInt; val weightPeek: chisel3.Vec[chisel3.SInt]}[0m
+[0m[[0m[31merror[0m] [0m[0m  io.input0 := segments(0).io.inputs(0)[0m
+[0m[[0m[31merror[0m] [0m[0m     ^[0m
+[0m[[0m[31merror[0m] [0m[0mone error found[0m

@@ -102,5 +102,5 @@ class HybridAdaptiveFIRFilter(val tapCount: Int, val segmentSize: Int) extends M
   io.dout := firOutput
 
   io.weightPeek := segments(0).io.weightPeek
-  io.input0 := segments(0).io.inputs(0)
+  // io.input(0) := segments(0).io.inputs(0)
 }
