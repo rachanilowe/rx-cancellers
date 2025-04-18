@@ -37,10 +37,10 @@ class CancellersTopModule() extends Module {
     })
 
     // Instantiate three NEXT cancellers and one echo canceller
-    val echoCanceller = Module(new HybridAdaptiveFIRFilter(80, 4))
-    val nextCanceller1 = Module(new HybridAdaptiveFIRFilter(60, 4))
-    val nextCanceller2 = Module(new HybridAdaptiveFIRFilter(60, 4))
-    val nextCanceller3 = Module(new HybridAdaptiveFIRFilter(60, 4))
+    val echoCanceller = Module(new HybridAdaptiveFIRFilter(80, 1))
+    val nextCanceller1 = Module(new HybridAdaptiveFIRFilter(60, 1))
+    val nextCanceller2 = Module(new HybridAdaptiveFIRFilter(60, 1))
+    val nextCanceller3 = Module(new HybridAdaptiveFIRFilter(60, 1))
     
     echoCanceller.io.din := io.tx0
     nextCanceller1.io.din := io.tx1

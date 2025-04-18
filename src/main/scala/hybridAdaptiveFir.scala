@@ -13,7 +13,7 @@ class HybridAdaptiveFIRFilter(val tapCount: Int, val segmentSize: Int) extends M
     val desired      = Input(SInt(18.W))
 
     // For debugging
-    val weightPeek   = Output(Vec(segmentSize, SInt(8.W)))
+    // val weightPeek   = Output(Vec(segmentSize, SInt(5.W)))
   })
 
   // make sections divided with output pipeline registers where the 
@@ -22,13 +22,13 @@ class HybridAdaptiveFIRFilter(val tapCount: Int, val segmentSize: Int) extends M
   val numInputReg = (numGroups * (segmentSize - 1)) + 1
   // maybe want too add one more register at the front
   val inputShifters = RegInit(VecInit(Seq.fill(numInputReg)(0.S(5.W))))
-  val outputShifters = RegInit(VecInit(Seq.fill(numGroups - 1)(0.S(24.W))))
+  val outputShifters = RegInit(VecInit(Seq.fill(numGroups - 1)(0.S(20.W))))
   // Delay line for weight claculation for the input 
   val numInputTrackingRegs = ((numGroups * (segmentSize - 1)) + numGroups)
   val inputWeightShifters = RegInit(VecInit(Seq.fill(numInputTrackingRegs)(0.S(5.W))))
 
   // The last FIRSegment should be directly connected to (desired - dout) * mu
-  val errorShifters = RegInit(VecInit(Seq.fill(numGroups - 1)(0.S(24.W))))
+  val errorShifters = RegInit(VecInit(Seq.fill(numGroups - 1)(0.S(20.W))))
 
   // each group is a fir filter so we can use a simple fir module
   val segments = Seq.fill(numGroups)(Module(new FIRSegment(segmentSize)))
@@ -36,8 +36,8 @@ class HybridAdaptiveFIRFilter(val tapCount: Int, val segmentSize: Int) extends M
   for ((seg, idx) <- segments.zipWithIndex) {
     seg.io.inputs := VecInit(Seq.fill(segmentSize)(0.S(5.W)))
     seg.io.weightCalcIns := VecInit(Seq.fill(segmentSize)(0.S(5.W)))
-    seg.io.partialSum := 0.S(24.W)
-    seg.io.error := 0.S(24.W)
+    seg.io.partialSum := 0.S(20.W)
+    seg.io.error := 0.S(20.W)
     seg.io.valid := false.B 
 
     // Connect output even if unused
@@ -101,6 +101,6 @@ class HybridAdaptiveFIRFilter(val tapCount: Int, val segmentSize: Int) extends M
 
   io.dout := firOutput
 
-  io.weightPeek := segments(0).io.weightPeek
+  // io.weightPeek := segments(0).io.weightPeek
   // io.input(0) := segments(0).io.inputs(0)
 }
