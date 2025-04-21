@@ -186,8 +186,8 @@ class HybridFirFilterTest extends AnyFreeSpec with ChiselScalatestTester {
     ).withAnnotations(Seq(WriteVcdAnnotation)) { dut =>
       val steps = 300
       val period = 30  // you can tweak this for faster/slower oscillation
-      val amplitude = 3  // for 3-bit signed: max abs value = 3
-      val noiseAmplitude = 75  // noise added to the desired signal
+      val amplitude = 15  // for 3-bit signed: max abs value = 3
+      val noiseAmplitude = 10  // noise added to the desired signal
 
       for (i <- 0 until steps) {
         // Generate clean sine wave value and quantized version

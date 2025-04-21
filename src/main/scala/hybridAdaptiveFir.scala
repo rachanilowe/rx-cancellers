@@ -25,7 +25,7 @@ class HybridAdaptiveFIRFilter(val tapCount: Int, val segmentSize: Int) extends M
   val outputShifters = RegInit(VecInit(Seq.fill(numGroups - 1)(0.S(18.W))))
   // Delay line for weight calculation for the input 
   // TODO: mess around with the inputWeightShifters
-  val numInputTrackingRegs = ((numGroups * (segmentSize - 1)) + numGroups - 1)
+  val numInputTrackingRegs = ((numGroups * (segmentSize - 1)) + numGroups)
   val inputWeightShifters = RegInit(VecInit(Seq.fill(numInputTrackingRegs)(0.S(5.W))))
 
   // The last FIRSegment should be directly connected to (desired - dout) * mu
@@ -78,7 +78,7 @@ class HybridAdaptiveFIRFilter(val tapCount: Int, val segmentSize: Int) extends M
       segments(i).io.inputs := VecInit(sliceInputShifters)
 
       // set input delay vector for weight calc
-      val sliceInputWeightShifters = inputWeightShifters.slice((i * (segmentSize - 1)), ((i+1) * (segmentSize - 1) + 1))
+      val sliceInputWeightShifters = inputWeightShifters.slice((i * (segmentSize - 1)) + numGroups - 1, ((i+1) * (segmentSize - 1) + numGroups))
       segments(i).io.weightCalcIns := VecInit(sliceInputWeightShifters)
 
       // set error
