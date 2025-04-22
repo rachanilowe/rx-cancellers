@@ -7,23 +7,23 @@ import scala.util.Random
 import scala.math._
 
 import cancellers.CancellersTopModule
-import cancellers.{LMSFIRFilter, LMSFIRFilter_Transpose}
+// import cancellers.{LMSFIRFilter, LMSFIRFilter_Transpose}
 
 class HybridFir(tapCount: Int, segmentCount: Int) extends Module {
     val io = IO(new Bundle {
         val din          = Input(SInt(3.W))
         val dinValid     = Input(Bool())
-        val dout         = Output(SInt(18.W))
-        val desired      = Input(SInt(18.W))
+        val dout         = Output(SInt(10.W))
+        val desired      = Input(SInt(6.W))
 
         // For debugging
-        val weightPeek   = Output(Vec(segmentCount, SInt(10.W)))
+        // val weightPeek   = Output(Vec(segmentCount, SInt(10.W)))
     })
     val dut = Module(new HybridAdaptiveFIRFilter(tapCount, segmentCount))
     dut.io.din := io.din
     dut.io.dinValid := io.dinValid
     dut.io.desired := io.desired
-    io.weightPeek := dut.io.weightPeek
+    // io.weightPeek := dut.io.weightPeek
     // io.input0 := dut.io.input0
 
     io.dout := dut.io.dout
@@ -99,7 +99,7 @@ class HybridFirFilterTest extends AnyFreeSpec with ChiselScalatestTester {
       dut.io.din.poke(2.S(3.W))
       dut.io.dinValid.poke(true.B)
       dut.io.desired.poke(64.S(18.W))
-      println("Weight Peek: " + dut.io.weightPeek.peek())
+      // println("Weight Peek: " + dut.io.weightPeek.peek())
 
       // CYCLE 0 -> 1: 
       // InputWeightShifters(0) = 2
@@ -108,7 +108,7 @@ class HybridFirFilterTest extends AnyFreeSpec with ChiselScalatestTester {
       dut.clock.step()
       dut.io.din.poke(-2.S(3.W))
       dut.io.desired.poke(128.S(18.W))
-      println("Weight Peek: " + dut.io.weightPeek.peek())
+      // println("Weight Peek: " + dut.io.weightPeek.peek())
       dut.io.dout.expect(0.S)
 
       // CYCLE 1 -> 2: 
@@ -118,7 +118,7 @@ class HybridFirFilterTest extends AnyFreeSpec with ChiselScalatestTester {
       dut.clock.step()
       dut.io.din.poke(1.S(3.W))
       dut.io.desired.poke(84.S(18.W))
-      println("Weight Peek: " + dut.io.weightPeek.peek())
+      // println("Weight Peek: " + dut.io.weightPeek.peek())
       dut.io.dout.expect(0.S)
 
       // CYCLE 2 -> 3:
@@ -130,7 +130,7 @@ class HybridFirFilterTest extends AnyFreeSpec with ChiselScalatestTester {
       dut.clock.step()
       dut.io.din.poke(-1.S(3.W))
       dut.io.desired.poke(33.S(18.W))
-      println("Weight Peek: " + dut.io.weightPeek.peek())
+      // println("Weight Peek: " + dut.io.weightPeek.peek())
       dut.io.dout.expect(0.S)
 
       // CYCLE 3 -> 4:
@@ -141,7 +141,7 @@ class HybridFirFilterTest extends AnyFreeSpec with ChiselScalatestTester {
       dut.clock.step()
       dut.io.din.poke(0.S(3.W))
       dut.io.desired.poke(47.S(18.W))
-      println("Weight Peek: " + dut.io.weightPeek.peek())
+      // println("Weight Peek: " + dut.io.weightPeek.peek())
       dut.io.dout.expect(-8.S)
 
       // CYCLE 4 -> 5:
@@ -152,7 +152,7 @@ class HybridFirFilterTest extends AnyFreeSpec with ChiselScalatestTester {
       dut.clock.step()
       dut.io.din.poke(2.S(3.W))
       dut.io.desired.poke(22.S(18.W))
-      println("Weight Peek: " + dut.io.weightPeek.peek())
+      // println("Weight Peek: " + dut.io.weightPeek.peek())
       dut.io.dout.expect(-6.S) // weight(0) * InputWeightShifters(0) + weight(1) * InputWeightShifters(1)
 
       // CYCLE 5 -> 6:
@@ -163,7 +163,7 @@ class HybridFirFilterTest extends AnyFreeSpec with ChiselScalatestTester {
       dut.clock.step()
       dut.io.din.poke(1.S(3.W))
       dut.io.desired.poke(-11.S(18.W))
-      println("Weight Peek: " + dut.io.weightPeek.peek())
+      // println("Weight Peek: " + dut.io.weightPeek.peek())
       dut.io.dout.expect(4.S) // weight(0) * InputWeightShifters(0) + weight(1) * InputWeightShifters(1) + weight(2) * InputWeightShifters(2)
 
       // CYCLE 6 -> 7:
@@ -173,7 +173,7 @@ class HybridFirFilterTest extends AnyFreeSpec with ChiselScalatestTester {
       dut.clock.step()
       dut.io.din.poke(-1.S(3.W))
       dut.io.desired.poke(33.S(18.W))
-      println("Weight Peek: " + dut.io.weightPeek.peek())
+      // println("Weight Peek: " + dut.io.weightPeek.peek())
       dut.io.dout.expect(6.S)
     }
   }
@@ -181,25 +181,25 @@ class HybridFirFilterTest extends AnyFreeSpec with ChiselScalatestTester {
   "Clean up sine wave" in {
     test(
       new HybridFir(
-        80, 4
+        21, 3
       )
     ).withAnnotations(Seq(WriteVcdAnnotation)) { dut =>
       val steps = 300
       val period = 30  // you can tweak this for faster/slower oscillation
       val amplitude = 15  // for 3-bit signed: max abs value = 3
-      val noiseAmplitude = 10  // noise added to the desired signal
+      val noiseAmplitude = 1  // noise added to the desired signal
 
       for (i <- 0 until steps) {
         // Generate clean sine wave value and quantized version
         val angle = 2 * Pi * i / period
         val cleanSine = sin(angle)
         val quantizedSine = (cleanSine * amplitude).round.toInt.max(-4).min(3)  // clamp to 3-bit signed
-        val noisySine = (cleanSine * (1 << 7) + Random.nextGaussian() * noiseAmplitude).round.toInt
+        val noisySine = (cleanSine * (1 << 2) + Random.nextGaussian() * noiseAmplitude).round.toInt
 
         // Poke signals
-        dut.io.din.poke(quantizedSine.S(3.W))
+        dut.io.din.poke(quantizedSine.S(5.W))
         dut.io.dinValid.poke(true.B)
-        dut.io.desired.poke(noisySine.S(18.W))
+        dut.io.desired.poke(noisySine.S(6.W))
 
         // Optional: Peek weight if you're updating weights internally
         // println(s"Weight Peek at step $i: " + dut.io.weightPeek.peek())
@@ -208,10 +208,12 @@ class HybridFirFilterTest extends AnyFreeSpec with ChiselScalatestTester {
         // println(s"$i : dout = " + dut.io.dout.peek().litValue)
         // println(s"$i : clean sine = " + quantizedSine)
         // println(s"$i : dout = " + noisySine)
+        // println(s"$i : dout = " + quantizedSine)
 
         // Advance clock
         dut.clock.step()
-        println(s"$i : dout = " + dut.io.dout.peek().litValue)
+        val temp = dut.io.dout.peek().litValue
+        println(s"$i : dout = " + (temp >> 4))
       }
     }
   }

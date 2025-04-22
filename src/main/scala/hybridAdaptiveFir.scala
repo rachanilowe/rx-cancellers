@@ -9,7 +9,7 @@ class HybridAdaptiveFIRFilter(val tapCount: Int, val segmentSize: Int) extends M
   val io = IO(new Bundle {
     val din          = Input(SInt(5.W))
     val dinValid     = Input(Bool())
-    val dout         = Output(SInt(6.W))
+    val dout         = Output(SInt(10.W))
     val desired      = Input(SInt(6.W))
 
     // For debugging
@@ -84,7 +84,7 @@ class HybridAdaptiveFIRFilter(val tapCount: Int, val segmentSize: Int) extends M
       // set error
       // This is when we are trying to feed error * mu directly into the final FIRSegment
       if (i == numGroups - 1) {
-        segments(i).io.error := error >> 3
+        segments(i).io.error := error >> 4
       } else {
         segments(i).io.error := errorShifters(numGroups - i - 2)
       }
@@ -98,7 +98,7 @@ class HybridAdaptiveFIRFilter(val tapCount: Int, val segmentSize: Int) extends M
   for (i <- 1 until numGroups - 1) {
     errorShifters(i) := errorShifters(i - 1)
   }
-  errorShifters(0) := error >> 3 // mu = 1/32
+  errorShifters(0) := error >> 4 // mu = 1/32
 
   io.dout := firOutput
 

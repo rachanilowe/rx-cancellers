@@ -7,8 +7,8 @@ class FIRSegment(val segmentSize: Int) extends Module {
   val io = IO(new Bundle {
     val inputs       = Input(Vec(segmentSize, SInt(5.W)))
     val weightCalcIns = Input(Vec(segmentSize, SInt(5.W))) // the delay of inputs for weight calculation
-    val dout      = Output(SInt(6.W))
-    val partialSum = Input(SInt(6.W))
+    val dout      = Output(SInt(10.W))
+    val partialSum = Input(SInt(10.W))
     val error = Input(SInt(6.W))
     val valid = Input(Bool())
 
@@ -26,7 +26,7 @@ class FIRSegment(val segmentSize: Int) extends Module {
       val minWeight = -16.S(5.W) // Min for 16-bit signed integer
       
       val deltaW = (io.weightCalcIns(i) * io.error)  // TODO: switch to shift later
-      val weightUpdate = (weights(i) >> 2) + deltaW
+      val weightUpdate = (weights(i)) - deltaW
       weights(i) := Mux(weightUpdate > maxWeight, maxWeight, Mux(weightUpdate < minWeight, minWeight, weightUpdate))
       // weights(i) := weights(i) - deltaW
     }
