@@ -6,15 +6,14 @@ import chisel3.util._
 class FIRSegment(val segmentSize: Int) extends Module {
   val io = IO(new Bundle {
     val inputs       = Input(Vec(segmentSize, SInt(5.W)))
-    // val weights   = Input(Vec(segmentSize, SInt(8.W))) // do weight calc in here
     val weightCalcIns = Input(Vec(segmentSize, SInt(5.W))) // the delay of inputs for weight calculation
-    val dout      = Output(SInt(18.W))
-    val partialSum = Input(SInt(18.W))
-    val error = Input(SInt(18.W))
+    val dout      = Output(SInt(6.W))
+    val partialSum = Input(SInt(6.W))
+    val error = Input(SInt(6.W))
     val valid = Input(Bool())
 
     // For debugging
-    val weightPeek = Output(Vec(segmentSize, SInt(5.W)))
+    // val weightPeek = Output(Vec(segmentSize, SInt(5.W)))
   })
 
   val weights = RegInit(VecInit(Seq.fill(segmentSize)(0.S(5.W))))
@@ -37,5 +36,5 @@ class FIRSegment(val segmentSize: Int) extends Module {
 
   io.dout := sum + io.partialSum
 
-  io.weightPeek := weights
+  // io.weightPeek := weights
 }
