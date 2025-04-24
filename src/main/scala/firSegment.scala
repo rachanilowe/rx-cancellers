@@ -22,9 +22,12 @@ class FIRSegment(val segmentSize: Int) extends Module {
   // Tap-leakage update : w_i(n+1) = (1-alpha*mu)w_i(n) - alpha * e(n) * x(n)
   when (io.valid) {
     for (i <- 0 until segmentSize) {
-      val maxWeight = 15.S(5.W)  // Max for 16-bit signed integer
-      val minWeight = -16.S(5.W) // Min for 16-bit signed integer
+
+      // Cap weight values at 4-bit maximums on positive and negative side
+      val maxWeight = 7.S(4.W)  
+      val minWeight = -8.S(4.W) 
       
+      // TODO: implement tap-leakage algorithm
       val deltaW = (io.weightCalcIns(i) * io.error)  // TODO: switch to shift later
       val weightUpdate = (weights(i)) - deltaW
       weights(i) := Mux(weightUpdate > maxWeight, maxWeight, Mux(weightUpdate < minWeight, minWeight, weightUpdate))
@@ -34,7 +37,8 @@ class FIRSegment(val segmentSize: Int) extends Module {
 
   val sum = weights.zip(io.inputs).map { case (w, d) => w * d }.reduce(_ + _)
 
-  io.dout := sum + io.partialSum
+  // Attempt to shrink output data
+  io.dout := (sum + io.partialSum) >> 4
 
   // io.weightPeek := weights
 }

@@ -84,7 +84,7 @@ class HybridAdaptiveFIRFilter(val tapCount: Int, val segmentSize: Int) extends M
       // set error
       // This is when we are trying to feed error * mu directly into the final FIRSegment
       if (i == numGroups - 1) {
-        segments(i).io.error := error >> 4
+        segments(i).io.error := error >> 6
       } else {
         segments(i).io.error := errorShifters(numGroups - i - 2)
       }
@@ -98,9 +98,10 @@ class HybridAdaptiveFIRFilter(val tapCount: Int, val segmentSize: Int) extends M
   for (i <- 1 until numGroups - 1) {
     errorShifters(i) := errorShifters(i - 1)
   }
-  errorShifters(0) := error >> 4 // mu = 1/32
+  errorShifters(0) := error >> 6 // mu = 1/32
 
-  io.dout := firOutput
+  // Flip output
+  io.dout := firOutput * -1.S
 
   // io.weightPeek := segments(0).io.weightPeek
 }

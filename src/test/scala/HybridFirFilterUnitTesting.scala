@@ -181,7 +181,7 @@ class HybridFirFilterTest extends AnyFreeSpec with ChiselScalatestTester {
   "Clean up sine wave" in {
     test(
       new HybridFir(
-        40, 4
+        20, 4
       )
     ).withAnnotations(Seq(WriteVcdAnnotation)) { dut =>
       val steps = 150
