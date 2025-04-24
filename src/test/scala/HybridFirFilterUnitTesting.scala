@@ -181,7 +181,7 @@ class HybridFirFilterTest extends AnyFreeSpec with ChiselScalatestTester {
   "Clean up sine wave" in {
     test(
       new HybridFir(
-        20, 4
+        40, 4
       )
     ).withAnnotations(Seq(WriteVcdAnnotation)) { dut =>
       val steps = 150
@@ -191,10 +191,17 @@ class HybridFirFilterTest extends AnyFreeSpec with ChiselScalatestTester {
       val quantizedSines = scala.collection.mutable.ArrayBuffer[Int]()
       val noisySines = scala.collection.mutable.ArrayBuffer[Int]()
       val outputs = scala.collection.mutable.ArrayBuffer[BigInt]()
+      var currentValue = Random.between(-4, 4)
 
       for (i <- 0 until steps) {
-        val quantizedSine = Random.between(-4, 3)  // Matches 3-bit signed range (-4 to 3)
+        // val quantizedSine = Random.between(-3, 4)  // Matches 3-bit signed range (-4 to 3)
 
+        // val noise = Random.nextGaussian() * noiseAmplitude
+        // val noisySine = (quantizedSine * 4 + noise).round.toInt
+        val delta = Random.between(-1, 2)
+        currentValue = (currentValue + delta).max(-4).min(3)
+
+        val quantizedSine = currentValue
         val noise = Random.nextGaussian() * noiseAmplitude
         val noisySine = (quantizedSine * 4 + noise).round.toInt
 
