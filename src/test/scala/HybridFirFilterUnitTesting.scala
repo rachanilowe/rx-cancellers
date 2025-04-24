@@ -181,75 +181,38 @@ class HybridFirFilterTest extends AnyFreeSpec with ChiselScalatestTester {
   "Clean up sine wave" in {
     test(
       new HybridFir(
-        21, 3
+        20, 4
       )
     ).withAnnotations(Seq(WriteVcdAnnotation)) { dut =>
-      val steps = 300
+      val steps = 150
       val period = 30  // you can tweak this for faster/slower oscillation
-      val amplitude = 15  // for 3-bit signed: max abs value = 3
+      val amplitude = 5  // for 3-bit signed: max abs value = 3
       val noiseAmplitude = 1  // noise added to the desired signal
+      val quantizedSines = scala.collection.mutable.ArrayBuffer[Int]()
+      val noisySines = scala.collection.mutable.ArrayBuffer[Int]()
+      val outputs = scala.collection.mutable.ArrayBuffer[BigInt]()
 
       for (i <- 0 until steps) {
-        // Generate clean sine wave value and quantized version
-        val angle = 2 * Pi * i / period
-        val cleanSine = sin(angle)
-        val quantizedSine = (cleanSine * amplitude).round.toInt.max(-4).min(3)  // clamp to 3-bit signed
-        val noisySine = (cleanSine * (1 << 2) + Random.nextGaussian() * noiseAmplitude).round.toInt
+        val quantizedSine = Random.between(-4, 3)  // Matches 3-bit signed range (-4 to 3)
+
+        val noise = Random.nextGaussian() * noiseAmplitude
+        val noisySine = (quantizedSine * 4 + noise).round.toInt
 
         // Poke signals
         dut.io.din.poke(quantizedSine.S(5.W))
         dut.io.dinValid.poke(true.B)
-        dut.io.desired.poke(noisySine.S(6.W))
-
-        // Optional: Peek weight if you're updating weights internally
-        // println(s"Weight Peek at step $i: " + dut.io.weightPeek.peek())
-
-        // Peek output
-        // println(s"$i : dout = " + dut.io.dout.peek().litValue)
-        // println(s"$i : clean sine = " + quantizedSine)
-        // println(s"$i : dout = " + noisySine)
-        // println(s"$i : dout = " + quantizedSine)
+        dut.io.desired.poke(noisySine.S(5.W))
 
         // Advance clock
         dut.clock.step()
-        val temp = dut.io.dout.peek().litValue
-        println(s"$i : dout = " + (temp >> 4))
+        val dout = dut.io.dout.peek().litValue
+
+        quantizedSines += quantizedSine
+        noisySines += noisySine
+        outputs += dout
+        
+        println(s"$i, $quantizedSine, $noisySine, $dout")
       }
     }
   }
-
-  // "Clean up sine wave" in {
-  //   test(
-  //     new LMSFIRFilter(
-  //       80
-  //     )
-  //   ).withAnnotations(Seq(WriteVcdAnnotation)) { dut =>
-  //     val steps = 300
-  //     val period = 30  // you can tweak this for faster/slower oscillation
-  //     val amplitude = 3  // for 3-bit signed: max abs value = 3
-  //     val noiseAmplitude = 150  // noise added to the desired signal
-
-  //     for (i <- 0 until steps) {
-  //       // Generate clean sine wave value and quantized version
-  //       val angle = 2 * Pi * i / period
-  //       val cleanSine = sin(angle)
-  //       val quantizedSine = (cleanSine * amplitude).round.toInt.max(-4).min(3)  // clamp to 3-bit signed
-  //       val noisySine = (cleanSine * (1 << 7) + Random.nextGaussian() * noiseAmplitude).round.toInt
-
-  //       // Poke signals
-  //       dut.io.input.poke(quantizedSine.S(3.W))
-  //       dut.io.desiredOutput.poke(noisySine.S(18.W))
-
-  //       // Optional: Peek weight if you're updating weights internally
-  //       // println(s"Weight Peek at step $i: " + dut.io.weightPeek.peek())
-
-  //       // Peek output
-  //       println(s"$i : dout = " + dut.io.output.peek().litValue)
-  //       // println(s"$i : clean sine = " + quantizedSine)
-
-  //       // Advance clock
-  //       dut.clock.step()
-  //     }
-  //   }
-  // }
 }
