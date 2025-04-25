@@ -127,48 +127,69 @@ class TopModuleTest extends AnyFreeSpec with ChiselScalatestTester {
     }
   }
 
-  "Clean up sine wave" in {
+  "Simulated Incoming Rx Data" in {
     test(
-      new TopModuleBlock(
-        80, 60, 4 // echo and next have 6 taps with segment size of 3
-      )
-    ).withAnnotations(Seq(WriteVcdAnnotation)) { dut =>
-      val steps = 150
-    val period = 30
-    val noiseAmplitude = 1
+  new TopModuleBlock(
+    echoTapCount = 40,  // Number of taps for echo canceller
+    nextTapCount = 40,  // Number of taps for NEXT cancellers
+    segmentCount = 2    // Number of segments for hybrid FIR
+  )
+).withAnnotations(Seq(WriteVcdAnnotation)) { dut =>
+  val steps = 500
+  val noiseAmplitude = 1
+  
+  // Signal containers
+  val perfectRemoteTx = scala.collection.mutable.ArrayBuffer[Int]()
+  val txSignals = (
+    scala.collection.mutable.ArrayBuffer[Int](),
+    scala.collection.mutable.ArrayBuffer[Int](),
+    scala.collection.mutable.ArrayBuffer[Int](),
+    scala.collection.mutable.ArrayBuffer[Int]()
+  )
+  val receivedNoisySignal = scala.collection.mutable.ArrayBuffer[Int]()
+  val cleanedOutputs = scala.collection.mutable.ArrayBuffer[Int]()
 
-    val randWalk = Array.fill(4)(Random.between(-4, 4))
-    val outputs = scala.collection.mutable.ArrayBuffer[BigInt]()
+  // Initialize random walk states
+  var remoteSignal = Random.between(-4, 4)
+  var tx0 = Random.between(-4, 4)
+  var tx1 = Random.between(-4, 4)
+  var tx2 = Random.between(-4, 4)
+  var tx3 = Random.between(-4, 4)
 
-    for (i <- 0 until steps) {
-      val quantizedSines = new Array[Int](4)  
-      val noisySines = new Array[Int](4)    
+  for (i <- 0 until steps) {
+    // Update signals with bounded random walks
+    remoteSignal = (remoteSignal + Random.between(-1, 2)).max(-4).min(3)
+    tx0 = (tx0 + Random.between(-1, 2)).max(-4).min(3)
+    tx1 = (tx1 + Random.between(-1, 2)).max(-4).min(3)
+    tx2 = (tx2 + Random.between(-1, 2)).max(-4).min(3)
+    tx3 = (tx3 + Random.between(-1, 2)).max(-4).min(3)
 
-      for (j <- 0 until 4) {
-        val delta = Random.between(-1, 2)
-        randWalk(j) = (randWalk(j) + delta).max(-4).min(3)
-        quantizedSines(j) = randWalk(j)
-        val noise = Random.nextGaussian() * noiseAmplitude
-        noisySines(j) = (quantizedSines(j) * 4 + noise).round.toInt
-      }
+    // Simulate received signal (remote + all interference sources)
+    val channelNoise = (Random.nextGaussian() * noiseAmplitude).round.toInt
+    val receivedSignal = remoteSignal + tx0 + tx1 + tx2 + tx3 // + channelNoise
 
-      // Inject signals
-      dut.io.tx0.poke(quantizedSines(0).S)
-      dut.io.tx1.poke(quantizedSines(1).S)
-      dut.io.tx2.poke(quantizedSines(2).S)
-      dut.io.tx3.poke(quantizedSines(3).S)
-      dut.io.txValid.poke(true.B)
+    // Connect to DUT
+    dut.io.tx0.poke(tx0.S(5.W))
+    dut.io.tx1.poke(tx1.S(5.W))
+    dut.io.tx2.poke(tx2.S(5.W))
+    dut.io.tx3.poke(tx3.S(5.W))
+    dut.io.txValid.poke(true.B)
+    dut.io.desired.poke(receivedSignal.S(6.W))
+    dut.clock.step()
 
-      // Sum the noisy transmit signals and inject as desired
-      val desiredSignal = noisySines.sum.max(-32).min(31)
-      dut.io.desired.poke(desiredSignal.S)
+    // Record signals
+    perfectRemoteTx += remoteSignal
+    txSignals._1 += tx0
+    txSignals._2 += tx1
+    txSignals._3 += tx2
+    txSignals._4 += tx3
+    receivedNoisySignal += receivedSignal
+    cleanedOutputs += dut.io.desiredCancelled.peek().litValue.toInt
 
-      dut.clock.step()
-      val dout = dut.io.desiredCancelled.peek().litValue
-      outputs += dout
+    // Print diagnostic output
+    println(s"$i, $remoteSignal, $receivedSignal, ${cleanedOutputs.last}")
+  }
+}
 
-      println(f"$i%3d | tx0: ${quantizedSines(0)}%2d tx1: ${quantizedSines(1)}%2d tx2: ${quantizedSines(2)}%2d tx3: ${quantizedSines(3)}%2d | desired: $desiredSignal%4d | dout: $dout%4d")
-      }
-    }
   }
 }
