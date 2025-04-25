@@ -178,53 +178,43 @@ class HybridFirFilterTest extends AnyFreeSpec with ChiselScalatestTester {
     }
   }
 
-  "Clean up sine wave" in {
-  test(new HybridFir(60, 4)) // 20-bit coefficients, 4 taps
-  .withAnnotations(Seq(WriteVcdAnnotation)) { dut =>
-    val steps = 150
-    val noiseAmplitude = 1
-    
-    // Signal containers
-    val perfectRemoteTx = scala.collection.mutable.ArrayBuffer[Int]()
-    val localTxNoise = scala.collection.mutable.ArrayBuffer[Int]()
-    val receivedNoisySignal = scala.collection.mutable.ArrayBuffer[Int]()
-    val cleanedOutputs = scala.collection.mutable.ArrayBuffer[Int]()
+  "Simulated Incoming Rx Data" in {
+    test(
+      new HybridFir(40, 2)
+    ) // 20-bit coefficients, 4 taps
+    .withAnnotations(Seq(WriteVcdAnnotation)) { dut =>
+      val steps = 500
+      val noiseAmplitude = 1
+      
+      // Signal containers
+      val perfectRemoteTx = scala.collection.mutable.ArrayBuffer[Int]()
+      val localTxNoise = scala.collection.mutable.ArrayBuffer[Int]()
+      val receivedNoisySignal = scala.collection.mutable.ArrayBuffer[Int]()
+      val cleanedOutputs = scala.collection.mutable.ArrayBuffer[Int]()
 
-    // 1. Generate independent signals
-    var remoteSignal = Random.between(-4, 4)  // Perfect data we want to recover
-    var localNoise = Random.between(-4, 4)    // Local TX interference
+      // 1. Generate independent signals
+      var remoteSignal = Random.between(-4, 4)  // Perfect data we want to recover
+      var localNoise = Random.between(-4, 4)    // Local TX interference
 
-    for (i <- 0 until steps) {
-      // 2. Evolve signals with random walks
-      remoteSignal = (remoteSignal + Random.between(-1, 2)).max(-4).min(3)
-      localNoise = (localNoise + Random.between(-1, 2)).max(-4).min(3)
+      for (i <- 0 until steps) {
+        remoteSignal = (remoteSignal + Random.between(-1, 2)).max(-4).min(3)
+        localNoise = (localNoise + Random.between(-1, 2)).max(-4).min(3)
 
-      // 3. Create received signal (remote TX + local noise + Gaussian noise)
-      val channelNoise = (Random.nextGaussian() * noiseAmplitude).round.toInt
-      val receivedSignal = remoteSignal + (localNoise * 1) // + channelNoise  // Scale local noise
+        val channelNoise = (Random.nextGaussian() * noiseAmplitude).round.toInt
+        val receivedSignal = remoteSignal + (localNoise * 1) // + channelNoise  // Scale local noise
 
-      // 4. Connect to DUT
-      dut.io.din.poke(localNoise.S(5.W))       // Local TX interference we know about
-      dut.io.desired.poke(receivedSignal.S(6.W)) // Received signal (remote + noise)
-      dut.io.dinValid.poke(true.B)
-      dut.clock.step()
+        dut.io.din.poke(localNoise.S(5.W))       // Local TX interference we know about
+        dut.io.desired.poke(receivedSignal.S(6.W)) // Received signal (remote + noise)
+        dut.io.dinValid.poke(true.B)
+        dut.clock.step()
 
-      // 5. Store results
-      perfectRemoteTx += remoteSignal
-      localTxNoise += localNoise
-      receivedNoisySignal += receivedSignal
-      cleanedOutputs += dut.io.dout.peek().litValue.toInt
+        perfectRemoteTx += remoteSignal
+        localTxNoise += localNoise
+        receivedNoisySignal += receivedSignal
+        cleanedOutputs += dut.io.dout.peek().litValue.toInt
 
-      // 6. Diagnostic print
-      // println(f"Step $i%3d | " +
-      //   f"Perfect: $remoteSignal%2d | " +
-      //   f"LocalNoise: $localNoise%2d | " +
-      //   f"Received: ${receivedSignal}%4d | " +
-      //   f"Cleaned: ${cleanedOutputs.last}%4d")
-
-      println(s"$i, $remoteSignal, $receivedSignal, ${cleanedOutputs.last}")
+        println(s"$i, $remoteSignal, $receivedSignal, ${receivedSignal - cleanedOutputs.last}")
+      }
     }
-    
   }
-}
 }
