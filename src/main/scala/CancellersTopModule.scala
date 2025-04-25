@@ -22,7 +22,7 @@ trait RxCancellerTopIO extends Bundle {
     // val desiredCancelled = Output(SInt(18.W)) // Cancelled RX signal
 }
 
-class CancellersTopModule() extends Module {
+class CancellersTopModule(val echoTapCount: Int, val nextTapCount: Int, val segSize: Int) extends Module {
     val io = IO(new Bundle {
       val tx0 = Input(SInt(5.W)) // echo
       val tx1 = Input(SInt(5.W)) // next 1
@@ -37,10 +37,10 @@ class CancellersTopModule() extends Module {
     })
 
     // Instantiate three NEXT cancellers and one echo canceller
-    val echoCanceller = Module(new HybridAdaptiveFIRFilter(80, 4))
-    val nextCanceller1 = Module(new HybridAdaptiveFIRFilter(60, 4))
-    val nextCanceller2 = Module(new HybridAdaptiveFIRFilter(60, 4))
-    val nextCanceller3 = Module(new HybridAdaptiveFIRFilter(60, 4))
+    val echoCanceller = Module(new HybridAdaptiveFIRFilter(echoTapCount, segSize))
+    val nextCanceller1 = Module(new HybridAdaptiveFIRFilter(nextTapCount, segSize))
+    val nextCanceller2 = Module(new HybridAdaptiveFIRFilter(nextTapCount, segSize))
+    val nextCanceller3 = Module(new HybridAdaptiveFIRFilter(nextTapCount, segSize))
     
     echoCanceller.io.din := io.tx0
     nextCanceller1.io.din := io.tx1
@@ -67,7 +67,7 @@ class CancellersTopModule() extends Module {
 
 // trait CancellersTop extends HasRegMap {
 //     val io: RxCancellerTopIO
-//     val cancellers = Module(new CancellersTopModule())
+//     val cancellers = Module(new CancellersTopModule(80, 60, 4))
 
 //     // Define a helper for read/write RegFields for SInt
 //     def RegFieldSInt(width: Int, reg: SInt): RegField = {

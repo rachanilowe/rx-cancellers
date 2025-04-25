@@ -1,7 +1,301 @@
-[0m[[0m[31merror[0m] [0m[0m/scratch/eecs251b-aal/251b-proj/generators/rx-cancellers/src/main/scala/CancellersTopModule.scala:109:19: overloaded method apply with alternatives:[0m
-[0m[[0m[31merror[0m] [0m[0m  (n: Int,rw: chisel3.UInt)freechips.rocketchip.regmapper.RegField <and>[0m
-[0m[[0m[31merror[0m] [0m[0m  (n: Int,desc: freechips.rocketchip.regmapper.RegFieldDesc)freechips.rocketchip.regmapper.RegField[0m
-[0m[[0m[31merror[0m] [0m[0m cannot be applied to (Int, freechips.rocketchip.regmapper.RegReadFn)[0m
-[0m[[0m[31merror[0m] [0m[0m      0x10 -> Seq(RegField(18, RegReadFn(desiredCanceledReg.asUInt))) // read-only[0m
+[0m[[0m[31merror[0m] [0m[0m/scratch/eecs251b-aal/251b-proj/generators/rx-cancellers/src/main/scala/CancellersTopModule.scala:3:8: not found: object chisel3[0m
+[0m[[0m[31merror[0m] [0m[0mimport chisel3._[0m
+[0m[[0m[31merror[0m] [0m[0m       ^[0m
+[0m[[0m[31merror[0m] [0m[0m/scratch/eecs251b-aal/251b-proj/generators/rx-cancellers/src/main/scala/CancellersTopModule.scala:4:8: not found: object chisel3[0m
+[0m[[0m[31merror[0m] [0m[0mimport chisel3.util._[0m
+[0m[[0m[31merror[0m] [0m[0m       ^[0m
+[0m[[0m[31merror[0m] [0m[0m/scratch/eecs251b-aal/251b-proj/generators/rx-cancellers/src/main/scala/CancellersTopModule.scala:11:32: not found: type Bundle[0m
+[0m[[0m[31merror[0m] [0m[0mtrait RxCancellerTopIO extends Bundle {[0m
+[0m[[0m[31merror[0m] [0m[0m                               ^[0m
+[0m[[0m[31merror[0m] [0m[0m/scratch/eecs251b-aal/251b-proj/generators/rx-cancellers/src/main/scala/CancellersTopModule.scala:25:99: illegal inheritance from final class Module[0m
+[0m[[0m[31merror[0m] [0m[0mclass CancellersTopModule(val echoTapCount: Int, val nextTapCount: Int, val segSize: Int) extends Module {[0m
+[0m[[0m[31merror[0m] [0m[0m                                                                                                  ^[0m
+[0m[[0m[31merror[0m] [0m[0m/scratch/eecs251b-aal/251b-proj/generators/rx-cancellers/src/main/scala/CancellersTopModule.scala:26:14: not found: value IO[0m
+[0m[[0m[31merror[0m] [0m[0m    val io = IO(new Bundle {[0m
+[0m[[0m[31merror[0m] [0m[0m             ^[0m
+[0m[[0m[31merror[0m] [0m[0m/scratch/eecs251b-aal/251b-proj/generators/rx-cancellers/src/main/scala/CancellersTopModule.scala:26:21: not found: type Bundle[0m
+[0m[[0m[31merror[0m] [0m[0m    val io = IO(new Bundle {[0m
+[0m[[0m[31merror[0m] [0m[0m                    ^[0m
+[0m[[0m[31merror[0m] [0m[0m/scratch/eecs251b-aal/251b-proj/generators/rx-cancellers/src/main/scala/CancellersTopModule.scala:27:17: not found: value Input[0m
+[0m[[0m[31merror[0m] [0m[0m      val tx0 = Input(SInt(5.W)) // echo[0m
+[0m[[0m[31merror[0m] [0m[0m                ^[0m
+[0m[[0m[31merror[0m] [0m[0m/scratch/eecs251b-aal/251b-proj/generators/rx-cancellers/src/main/scala/CancellersTopModule.scala:27:23: not found: value SInt[0m
+[0m[[0m[31merror[0m] [0m[0m      val tx0 = Input(SInt(5.W)) // echo[0m
+[0m[[0m[31merror[0m] [0m[0m                      ^[0m
+[0m[[0m[31merror[0m] [0m[0m/scratch/eecs251b-aal/251b-proj/generators/rx-cancellers/src/main/scala/CancellersTopModule.scala:27:30: value W is not a member of Int[0m
+[0m[[0m[31merror[0m] [0m[0m      val tx0 = Input(SInt(5.W)) // echo[0m
+[0m[[0m[31merror[0m] [0m[0m                             ^[0m
+[0m[[0m[31merror[0m] [0m[0m/scratch/eecs251b-aal/251b-proj/generators/rx-cancellers/src/main/scala/CancellersTopModule.scala:28:17: not found: value Input[0m
+[0m[[0m[31merror[0m] [0m[0m      val tx1 = Input(SInt(5.W)) // next 1[0m
+[0m[[0m[31merror[0m] [0m[0m                ^[0m
+[0m[[0m[31merror[0m] [0m[0m/scratch/eecs251b-aal/251b-proj/generators/rx-cancellers/src/main/scala/CancellersTopModule.scala:28:23: not found: value SInt[0m
+[0m[[0m[31merror[0m] [0m[0m      val tx1 = Input(SInt(5.W)) // next 1[0m
+[0m[[0m[31merror[0m] [0m[0m                      ^[0m
+[0m[[0m[31merror[0m] [0m[0m/scratch/eecs251b-aal/251b-proj/generators/rx-cancellers/src/main/scala/CancellersTopModule.scala:28:30: value W is not a member of Int[0m
+[0m[[0m[31merror[0m] [0m[0m      val tx1 = Input(SInt(5.W)) // next 1[0m
+[0m[[0m[31merror[0m] [0m[0m                             ^[0m
+[0m[[0m[31merror[0m] [0m[0m/scratch/eecs251b-aal/251b-proj/generators/rx-cancellers/src/main/scala/CancellersTopModule.scala:29:17: not found: value Input[0m
+[0m[[0m[31merror[0m] [0m[0m      val tx2 = Input(SInt(5.W)) // next 2[0m
+[0m[[0m[31merror[0m] [0m[0m                ^[0m
+[0m[[0m[31merror[0m] [0m[0m/scratch/eecs251b-aal/251b-proj/generators/rx-cancellers/src/main/scala/CancellersTopModule.scala:29:23: not found: value SInt[0m
+[0m[[0m[31merror[0m] [0m[0m      val tx2 = Input(SInt(5.W)) // next 2[0m
+[0m[[0m[31merror[0m] [0m[0m                      ^[0m
+[0m[[0m[31merror[0m] [0m[0m/scratch/eecs251b-aal/251b-proj/generators/rx-cancellers/src/main/scala/CancellersTopModule.scala:29:30: value W is not a member of Int[0m
+[0m[[0m[31merror[0m] [0m[0m      val tx2 = Input(SInt(5.W)) // next 2[0m
+[0m[[0m[31merror[0m] [0m[0m                             ^[0m
+[0m[[0m[31merror[0m] [0m[0m/scratch/eecs251b-aal/251b-proj/generators/rx-cancellers/src/main/scala/CancellersTopModule.scala:30:17: not found: value Input[0m
+[0m[[0m[31merror[0m] [0m[0m      val tx3 = Input(SInt(5.W)) // next3[0m
+[0m[[0m[31merror[0m] [0m[0m                ^[0m
+[0m[[0m[31merror[0m] [0m[0m/scratch/eecs251b-aal/251b-proj/generators/rx-cancellers/src/main/scala/CancellersTopModule.scala:30:23: not found: value SInt[0m
+[0m[[0m[31merror[0m] [0m[0m      val tx3 = Input(SInt(5.W)) // next3[0m
+[0m[[0m[31merror[0m] [0m[0m                      ^[0m
+[0m[[0m[31merror[0m] [0m[0m/scratch/eecs251b-aal/251b-proj/generators/rx-cancellers/src/main/scala/CancellersTopModule.scala:30:30: value W is not a member of Int[0m
+[0m[[0m[31merror[0m] [0m[0m      val tx3 = Input(SInt(5.W)) // next3[0m
+[0m[[0m[31merror[0m] [0m[0m                             ^[0m
+[0m[[0m[31merror[0m] [0m[0m/scratch/eecs251b-aal/251b-proj/generators/rx-cancellers/src/main/scala/CancellersTopModule.scala:32:21: not found: value Input[0m
+[0m[[0m[31merror[0m] [0m[0m      val txValid = Input(Bool()) // per Richard only need tx valid[0m
+[0m[[0m[31merror[0m] [0m[0m                    ^[0m
+[0m[[0m[31merror[0m] [0m[0m/scratch/eecs251b-aal/251b-proj/generators/rx-cancellers/src/main/scala/CancellersTopModule.scala:32:27: not found: value Bool[0m
+[0m[[0m[31merror[0m] [0m[0m      val txValid = Input(Bool()) // per Richard only need tx valid[0m
+[0m[[0m[31merror[0m] [0m[0m                          ^[0m
+[0m[[0m[31merror[0m] [0m[0m/scratch/eecs251b-aal/251b-proj/generators/rx-cancellers/src/main/scala/CancellersTopModule.scala:35:23: not found: value Input[0m
+[0m[[0m[31merror[0m] [0m[0m      val desired   = Input(SInt(6.W)) // RX signal[0m
+[0m[[0m[31merror[0m] [0m[0m                      ^[0m
+[0m[[0m[31merror[0m] [0m[0m/scratch/eecs251b-aal/251b-proj/generators/rx-cancellers/src/main/scala/CancellersTopModule.scala:35:29: not found: value SInt[0m
+[0m[[0m[31merror[0m] [0m[0m      val desired   = Input(SInt(6.W)) // RX signal[0m
+[0m[[0m[31merror[0m] [0m[0m                            ^[0m
+[0m[[0m[31merror[0m] [0m[0m/scratch/eecs251b-aal/251b-proj/generators/rx-cancellers/src/main/scala/CancellersTopModule.scala:35:36: value W is not a member of Int[0m
+[0m[[0m[31merror[0m] [0m[0m      val desired   = Input(SInt(6.W)) // RX signal[0m
+[0m[[0m[31merror[0m] [0m[0m                                   ^[0m
+[0m[[0m[31merror[0m] [0m[0m/scratch/eecs251b-aal/251b-proj/generators/rx-cancellers/src/main/scala/CancellersTopModule.scala:36:30: not found: value Output[0m
+[0m[[0m[31merror[0m] [0m[0m      val desiredCancelled = Output(SInt(6.W)) // Cancelled RX signal[0m
+[0m[[0m[31merror[0m] [0m[0m                             ^[0m
+[0m[[0m[31merror[0m] [0m[0m/scratch/eecs251b-aal/251b-proj/generators/rx-cancellers/src/main/scala/CancellersTopModule.scala:36:37: not found: value SInt[0m
+[0m[[0m[31merror[0m] [0m[0m      val desiredCancelled = Output(SInt(6.W)) // Cancelled RX signal[0m
+[0m[[0m[31merror[0m] [0m[0m                                    ^[0m
+[0m[[0m[31merror[0m] [0m[0m/scratch/eecs251b-aal/251b-proj/generators/rx-cancellers/src/main/scala/CancellersTopModule.scala:36:44: value W is not a member of Int[0m
+[0m[[0m[31merror[0m] [0m[0m      val desiredCancelled = Output(SInt(6.W)) // Cancelled RX signal[0m
+[0m[[0m[31merror[0m] [0m[0m                                           ^[0m
+[0m[[0m[31merror[0m] [0m[0m/scratch/eecs251b-aal/251b-proj/generators/rx-cancellers/src/main/scala/CancellersTopModule.scala:40:25: class java.lang.Module is not a value[0m
+[0m[[0m[31merror[0m] [0m[0m    val echoCanceller = Module(new HybridAdaptiveFIRFilter(echoTapCount, segSize))[0m
+[0m[[0m[31merror[0m] [0m[0m                        ^[0m
+[0m[[0m[31merror[0m] [0m[0m/scratch/eecs251b-aal/251b-proj/generators/rx-cancellers/src/main/scala/hybridAdaptiveFir.scala:3:8: not found: object chisel3[0m
+[0m[[0m[31merror[0m] [0m[0mimport chisel3._[0m
+[0m[[0m[31merror[0m] [0m[0m       ^[0m
+[0m[[0m[31merror[0m] [0m[0m/scratch/eecs251b-aal/251b-proj/generators/rx-cancellers/src/main/scala/hybridAdaptiveFir.scala:4:8: not found: object chisel3[0m
+[0m[[0m[31merror[0m] [0m[0mimport chisel3.util._[0m
+[0m[[0m[31merror[0m] [0m[0m       ^[0m
+[0m[[0m[31merror[0m] [0m[0m/scratch/eecs251b-aal/251b-proj/generators/rx-cancellers/src/main/scala/CancellersTopModule.scala:41:26: class java.lang.Module is not a value[0m
+[0m[[0m[31merror[0m] [0m[0m    val nextCanceller1 = Module(new HybridAdaptiveFIRFilter(nextTapCount, segSize))[0m
+[0m[[0m[31merror[0m] [0m[0m                         ^[0m
+[0m[[0m[31merror[0m] [0m[0m/scratch/eecs251b-aal/251b-proj/generators/rx-cancellers/src/main/scala/CancellersTopModule.scala:42:26: class java.lang.Module is not a value[0m
+[0m[[0m[31merror[0m] [0m[0m    val nextCanceller2 = Module(new HybridAdaptiveFIRFilter(nextTapCount, segSize))[0m
+[0m[[0m[31merror[0m] [0m[0m                         ^[0m
+[0m[[0m[31merror[0m] [0m[0m/scratch/eecs251b-aal/251b-proj/generators/rx-cancellers/src/main/scala/CancellersTopModule.scala:43:26: class java.lang.Module is not a value[0m
+[0m[[0m[31merror[0m] [0m[0m    val nextCanceller3 = Module(new HybridAdaptiveFIRFilter(nextTapCount, segSize))[0m
+[0m[[0m[31merror[0m] [0m[0m                         ^[0m
+[0m[[0m[31merror[0m] [0m[0m/scratch/eecs251b-aal/251b-proj/generators/rx-cancellers/src/main/scala/adaptiveFirFilter.scala:3:8: not found: object chisel3[0m
+[0m[[0m[31merror[0m] [0m[0mimport chisel3._[0m
+[0m[[0m[31merror[0m] [0m[0m       ^[0m
+[0m[[0m[31merror[0m] [0m[0m/scratch/eecs251b-aal/251b-proj/generators/rx-cancellers/src/main/scala/adaptiveFirFilter.scala:4:8: not found: object chisel3[0m
+[0m[[0m[31merror[0m] [0m[0mimport chisel3.util._[0m
+[0m[[0m[31merror[0m] [0m[0m       ^[0m
+[0m[[0m[31merror[0m] [0m[0m/scratch/eecs251b-aal/251b-proj/generators/rx-cancellers/src/main/scala/adaptiveFirFilter.scala:6:52: illegal inheritance from final class Module[0m
+[0m[[0m[31merror[0m] [0m[0mclass AdaptiveFIRFilter(val tapCount: Int) extends Module {[0m
+[0m[[0m[31merror[0m] [0m[0m                                                   ^[0m
+[0m[[0m[31merror[0m] [0m[0m/scratch/eecs251b-aal/251b-proj/generators/rx-cancellers/src/main/scala/adaptiveFirFilter.scala:7:12: not found: value IO[0m
+[0m[[0m[31merror[0m] [0m[0m  val io = IO(new Bundle {[0m
+[0m[[0m[31merror[0m] [0m[0m           ^[0m
+[0m[[0m[31merror[0m] [0m[0m/scratch/eecs251b-aal/251b-proj/generators/rx-cancellers/src/main/scala/adaptiveFirFilter.scala:7:19: not found: type Bundle[0m
+[0m[[0m[31merror[0m] [0m[0m  val io = IO(new Bundle {[0m
 [0m[[0m[31merror[0m] [0m[0m                  ^[0m
-[0m[[0m[31merror[0m] [0m[0mone error found[0m
+[0m[[0m[31merror[0m] [0m[0m/scratch/eecs251b-aal/251b-proj/generators/rx-cancellers/src/main/scala/adaptiveFirFilter.scala:8:24: not found: value Input[0m
+[0m[[0m[31merror[0m] [0m[0m    val din          = Input(SInt(3.W))[0m
+[0m[[0m[31merror[0m] [0m[0m                       ^[0m
+[0m[[0m[31merror[0m] [0m[0m/scratch/eecs251b-aal/251b-proj/generators/rx-cancellers/src/main/scala/adaptiveFirFilter.scala:8:30: not found: value SInt[0m
+[0m[[0m[31merror[0m] [0m[0m    val din          = Input(SInt(3.W))[0m
+[0m[[0m[31merror[0m] [0m[0m                             ^[0m
+[0m[[0m[31merror[0m] [0m[0m/scratch/eecs251b-aal/251b-proj/generators/rx-cancellers/src/main/scala/adaptiveFirFilter.scala:8:37: value W is not a member of Int[0m
+[0m[[0m[31merror[0m] [0m[0m    val din          = Input(SInt(3.W))[0m
+[0m[[0m[31merror[0m] [0m[0m                                    ^[0m
+[0m[[0m[31merror[0m] [0m[0m/scratch/eecs251b-aal/251b-proj/generators/rx-cancellers/src/main/scala/adaptiveFirFilter.scala:9:24: not found: value Input[0m
+[0m[[0m[31merror[0m] [0m[0m    val dinValid     = Input(Bool())[0m
+[0m[[0m[31merror[0m] [0m[0m                       ^[0m
+[0m[[0m[31merror[0m] [0m[0m/scratch/eecs251b-aal/251b-proj/generators/rx-cancellers/src/main/scala/adaptiveFirFilter.scala:9:30: not found: value Bool[0m
+[0m[[0m[31merror[0m] [0m[0m    val dinValid     = Input(Bool())[0m
+[0m[[0m[31merror[0m] [0m[0m                             ^[0m
+[0m[[0m[31merror[0m] [0m[0m/scratch/eecs251b-aal/251b-proj/generators/rx-cancellers/src/main/scala/adaptiveFirFilter.scala:10:24: not found: value Output[0m
+[0m[[0m[31merror[0m] [0m[0m    val dout         = Output(SInt(18.W))[0m
+[0m[[0m[31merror[0m] [0m[0m                       ^[0m
+[0m[[0m[31merror[0m] [0m[0m/scratch/eecs251b-aal/251b-proj/generators/rx-cancellers/src/main/scala/adaptiveFirFilter.scala:10:31: not found: value SInt[0m
+[0m[[0m[31merror[0m] [0m[0m    val dout         = Output(SInt(18.W))[0m
+[0m[[0m[31merror[0m] [0m[0m                              ^[0m
+[0m[[0m[31merror[0m] [0m[0m/scratch/eecs251b-aal/251b-proj/generators/rx-cancellers/src/main/scala/adaptiveFirFilter.scala:10:39: value W is not a member of Int[0m
+[0m[[0m[31merror[0m] [0m[0m    val dout         = Output(SInt(18.W))[0m
+[0m[[0m[31merror[0m] [0m[0m                                      ^[0m
+[0m[[0m[31merror[0m] [0m[0m/scratch/eecs251b-aal/251b-proj/generators/rx-cancellers/src/main/scala/adaptiveFirFilter.scala:11:24: not found: value Input[0m
+[0m[[0m[31merror[0m] [0m[0m    val desired      = Input(SInt(18.W))[0m
+[0m[[0m[31merror[0m] [0m[0m                       ^[0m
+[0m[[0m[31merror[0m] [0m[0m/scratch/eecs251b-aal/251b-proj/generators/rx-cancellers/src/main/scala/adaptiveFirFilter.scala:11:30: not found: value SInt[0m
+[0m[[0m[31merror[0m] [0m[0m    val desired      = Input(SInt(18.W))[0m
+[0m[[0m[31merror[0m] [0m[0m                             ^[0m
+[0m[[0m[31merror[0m] [0m[0m/scratch/eecs251b-aal/251b-proj/generators/rx-cancellers/src/main/scala/adaptiveFirFilter.scala:11:38: value W is not a member of Int[0m
+[0m[[0m[31merror[0m] [0m[0m    val desired      = Input(SInt(18.W))[0m
+[0m[[0m[31merror[0m] [0m[0m                                     ^[0m
+[0m[[0m[31merror[0m] [0m[0m/scratch/eecs251b-aal/251b-proj/generators/rx-cancellers/src/main/scala/adaptiveFirFilter.scala:12:24: not found: value Output[0m
+[0m[[0m[31merror[0m] [0m[0m    val doutValid    = Output(Bool())[0m
+[0m[[0m[31merror[0m] [0m[0m                       ^[0m
+[0m[[0m[31merror[0m] [0m[0m/scratch/eecs251b-aal/251b-proj/generators/rx-cancellers/src/main/scala/adaptiveFirFilter.scala:12:31: not found: value Bool[0m
+[0m[[0m[31merror[0m] [0m[0m    val doutValid    = Output(Bool())[0m
+[0m[[0m[31merror[0m] [0m[0m                              ^[0m
+[0m[[0m[31merror[0m] [0m[0m/scratch/eecs251b-aal/251b-proj/generators/rx-cancellers/src/main/scala/adaptiveFirFilter.scala:15:18: not found: value RegInit[0m
+[0m[[0m[31merror[0m] [0m[0m  val shifters = RegInit(VecInit(Seq.fill(tapCount)(0.S(3.W))))[0m
+[0m[[0m[31merror[0m] [0m[0m                 ^[0m
+[0m[[0m[31merror[0m] [0m[0m/scratch/eecs251b-aal/251b-proj/generators/rx-cancellers/src/main/scala/adaptiveFirFilter.scala:15:26: not found: value VecInit[0m
+[0m[[0m[31merror[0m] [0m[0m  val shifters = RegInit(VecInit(Seq.fill(tapCount)(0.S(3.W))))[0m
+[0m[[0m[31merror[0m] [0m[0m                         ^[0m
+[0m[[0m[31merror[0m] [0m[0m/scratch/eecs251b-aal/251b-proj/generators/rx-cancellers/src/main/scala/adaptiveFirFilter.scala:15:55: value S is not a member of Int[0m
+[0m[[0m[31merror[0m] [0m[0m  val shifters = RegInit(VecInit(Seq.fill(tapCount)(0.S(3.W))))[0m
+[0m[[0m[31merror[0m] [0m[0m                                                      ^[0m
+[0m[[0m[31merror[0m] [0m[0m/scratch/eecs251b-aal/251b-proj/generators/rx-cancellers/src/main/scala/adaptiveFirFilter.scala:15:59: value W is not a member of Int[0m
+[0m[[0m[31merror[0m] [0m[0m  val shifters = RegInit(VecInit(Seq.fill(tapCount)(0.S(3.W))))[0m
+[0m[[0m[31merror[0m] [0m[0m                                                          ^[0m
+[0m[[0m[31merror[0m] [0m[0m/scratch/eecs251b-aal/251b-proj/generators/rx-cancellers/src/main/scala/adaptiveFirFilter.scala:17:17: not found: value VecInit[0m
+[0m[[0m[31merror[0m] [0m[0m  val weights = VecInit(Seq.fill(tapCount)(0.S(8.W)))[0m
+[0m[[0m[31merror[0m] [0m[0m                ^[0m
+[0m[[0m[31merror[0m] [0m[0m/scratch/eecs251b-aal/251b-proj/generators/rx-cancellers/src/main/scala/adaptiveFirFilter.scala:17:46: value S is not a member of Int[0m
+[0m[[0m[31merror[0m] [0m[0m  val weights = VecInit(Seq.fill(tapCount)(0.S(8.W)))[0m
+[0m[[0m[31merror[0m] [0m[0m                                             ^[0m
+[0m[[0m[31merror[0m] [0m[0m/scratch/eecs251b-aal/251b-proj/generators/rx-cancellers/src/main/scala/adaptiveFirFilter.scala:17:50: value W is not a member of Int[0m
+[0m[[0m[31merror[0m] [0m[0m  val weights = VecInit(Seq.fill(tapCount)(0.S(8.W)))[0m
+[0m[[0m[31merror[0m] [0m[0m                                                 ^[0m
+[0m[[0m[31merror[0m] [0m[0m/scratch/eecs251b-aal/251b-proj/generators/rx-cancellers/src/main/scala/adaptiveFirFilter.scala:27:3: not found: value when[0m
+[0m[[0m[31merror[0m] [0m[0m  when(io.dinValid) {[0m
+[0m[[0m[31merror[0m] [0m[0m  ^[0m
+[0m[[0m[31merror[0m] [0m[0m/scratch/eecs251b-aal/251b-proj/generators/rx-cancellers/src/main/scala/adaptiveFirFilter.scala:39:3: not found: value when[0m
+[0m[[0m[31merror[0m] [0m[0m  when (io.dinValid) {[0m
+[0m[[0m[31merror[0m] [0m[0m  ^[0m
+[0m[[0m[31merror[0m] [0m[0m/scratch/eecs251b-aal/251b-proj/generators/rx-cancellers/src/main/scala/firSegment.scala:3:8: not found: object chisel3[0m
+[0m[[0m[31merror[0m] [0m[0mimport chisel3._[0m
+[0m[[0m[31merror[0m] [0m[0m       ^[0m
+[0m[[0m[31merror[0m] [0m[0m/scratch/eecs251b-aal/251b-proj/generators/rx-cancellers/src/main/scala/firSegment.scala:4:8: not found: object chisel3[0m
+[0m[[0m[31merror[0m] [0m[0mimport chisel3.util._[0m
+[0m[[0m[31merror[0m] [0m[0m       ^[0m
+[0m[[0m[31merror[0m] [0m[0m/scratch/eecs251b-aal/251b-proj/generators/rx-cancellers/src/main/scala/firSegment.scala:6:48: illegal inheritance from final class Module[0m
+[0m[[0m[31merror[0m] [0m[0mclass FIRSegment(val segmentSize: Int) extends Module {[0m
+[0m[[0m[31merror[0m] [0m[0m                                               ^[0m
+[0m[[0m[31merror[0m] [0m[0m/scratch/eecs251b-aal/251b-proj/generators/rx-cancellers/src/main/scala/firSegment.scala:7:12: not found: value IO[0m
+[0m[[0m[31merror[0m] [0m[0m  val io = IO(new Bundle {[0m
+[0m[[0m[31merror[0m] [0m[0m           ^[0m
+[0m[[0m[31merror[0m] [0m[0m/scratch/eecs251b-aal/251b-proj/generators/rx-cancellers/src/main/scala/firSegment.scala:7:19: not found: type Bundle[0m
+[0m[[0m[31merror[0m] [0m[0m  val io = IO(new Bundle {[0m
+[0m[[0m[31merror[0m] [0m[0m                  ^[0m
+[0m[[0m[31merror[0m] [0m[0m/scratch/eecs251b-aal/251b-proj/generators/rx-cancellers/src/main/scala/firSegment.scala:8:24: not found: value Input[0m
+[0m[[0m[31merror[0m] [0m[0m    val inputs       = Input(Vec(segmentSize, SInt(5.W)))[0m
+[0m[[0m[31merror[0m] [0m[0m                       ^[0m
+[0m[[0m[31merror[0m] [0m[0m/scratch/eecs251b-aal/251b-proj/generators/rx-cancellers/src/main/scala/firSegment.scala:8:30: not found: value Vec[0m
+[0m[[0m[31merror[0m] [0m[0m    val inputs       = Input(Vec(segmentSize, SInt(5.W)))[0m
+[0m[[0m[31merror[0m] [0m[0m                             ^[0m
+[0m[[0m[31merror[0m] [0m[0m/scratch/eecs251b-aal/251b-proj/generators/rx-cancellers/src/main/scala/firSegment.scala:8:47: not found: value SInt[0m
+[0m[[0m[31merror[0m] [0m[0m    val inputs       = Input(Vec(segmentSize, SInt(5.W)))[0m
+[0m[[0m[31merror[0m] [0m[0m                                              ^[0m
+[0m[[0m[31merror[0m] [0m[0m/scratch/eecs251b-aal/251b-proj/generators/rx-cancellers/src/main/scala/firSegment.scala:8:54: value W is not a member of Int[0m
+[0m[[0m[31merror[0m] [0m[0m    val inputs       = Input(Vec(segmentSize, SInt(5.W)))[0m
+[0m[[0m[31merror[0m] [0m[0m                                                     ^[0m
+[0m[[0m[31merror[0m] [0m[0m/scratch/eecs251b-aal/251b-proj/generators/rx-cancellers/src/main/scala/firSegment.scala:9:25: not found: value Input[0m
+[0m[[0m[31merror[0m] [0m[0m    val weightCalcIns = Input(Vec(segmentSize, SInt(5.W))) // the delay of inputs for weight calculation[0m
+[0m[[0m[31merror[0m] [0m[0m                        ^[0m
+[0m[[0m[31merror[0m] [0m[0m/scratch/eecs251b-aal/251b-proj/generators/rx-cancellers/src/main/scala/firSegment.scala:9:31: not found: value Vec[0m
+[0m[[0m[31merror[0m] [0m[0m    val weightCalcIns = Input(Vec(segmentSize, SInt(5.W))) // the delay of inputs for weight calculation[0m
+[0m[[0m[31merror[0m] [0m[0m                              ^[0m
+[0m[[0m[31merror[0m] [0m[0m/scratch/eecs251b-aal/251b-proj/generators/rx-cancellers/src/main/scala/firSegment.scala:9:48: not found: value SInt[0m
+[0m[[0m[31merror[0m] [0m[0m    val weightCalcIns = Input(Vec(segmentSize, SInt(5.W))) // the delay of inputs for weight calculation[0m
+[0m[[0m[31merror[0m] [0m[0m                                               ^[0m
+[0m[[0m[31merror[0m] [0m[0m/scratch/eecs251b-aal/251b-proj/generators/rx-cancellers/src/main/scala/firSegment.scala:9:55: value W is not a member of Int[0m
+[0m[[0m[31merror[0m] [0m[0m    val weightCalcIns = Input(Vec(segmentSize, SInt(5.W))) // the delay of inputs for weight calculation[0m
+[0m[[0m[31merror[0m] [0m[0m                                                      ^[0m
+[0m[[0m[31merror[0m] [0m[0m/scratch/eecs251b-aal/251b-proj/generators/rx-cancellers/src/main/scala/firSegment.scala:10:21: not found: value Output[0m
+[0m[[0m[31merror[0m] [0m[0m    val dout      = Output(SInt(10.W))[0m
+[0m[[0m[31merror[0m] [0m[0m                    ^[0m
+[0m[[0m[31merror[0m] [0m[0m/scratch/eecs251b-aal/251b-proj/generators/rx-cancellers/src/main/scala/firSegment.scala:10:28: not found: value SInt[0m
+[0m[[0m[31merror[0m] [0m[0m    val dout      = Output(SInt(10.W))[0m
+[0m[[0m[31merror[0m] [0m[0m                           ^[0m
+[0m[[0m[31merror[0m] [0m[0m/scratch/eecs251b-aal/251b-proj/generators/rx-cancellers/src/main/scala/firSegment.scala:10:36: value W is not a member of Int[0m
+[0m[[0m[31merror[0m] [0m[0m    val dout      = Output(SInt(10.W))[0m
+[0m[[0m[31merror[0m] [0m[0m                                   ^[0m
+[0m[[0m[31merror[0m] [0m[0m/scratch/eecs251b-aal/251b-proj/generators/rx-cancellers/src/main/scala/firSegment.scala:11:22: not found: value Input[0m
+[0m[[0m[31merror[0m] [0m[0m    val partialSum = Input(SInt(10.W))[0m
+[0m[[0m[31merror[0m] [0m[0m                     ^[0m
+[0m[[0m[31merror[0m] [0m[0m/scratch/eecs251b-aal/251b-proj/generators/rx-cancellers/src/main/scala/firSegment.scala:11:28: not found: value SInt[0m
+[0m[[0m[31merror[0m] [0m[0m    val partialSum = Input(SInt(10.W))[0m
+[0m[[0m[31merror[0m] [0m[0m                           ^[0m
+[0m[[0m[31merror[0m] [0m[0m/scratch/eecs251b-aal/251b-proj/generators/rx-cancellers/src/main/scala/firSegment.scala:11:36: value W is not a member of Int[0m
+[0m[[0m[31merror[0m] [0m[0m    val partialSum = Input(SInt(10.W))[0m
+[0m[[0m[31merror[0m] [0m[0m                                   ^[0m
+[0m[[0m[31merror[0m] [0m[0m/scratch/eecs251b-aal/251b-proj/generators/rx-cancellers/src/main/scala/firSegment.scala:12:17: not found: value Input[0m
+[0m[[0m[31merror[0m] [0m[0m    val error = Input(SInt(6.W))[0m
+[0m[[0m[31merror[0m] [0m[0m                ^[0m
+[0m[[0m[31merror[0m] [0m[0m/scratch/eecs251b-aal/251b-proj/generators/rx-cancellers/src/main/scala/firSegment.scala:12:23: not found: value SInt[0m
+[0m[[0m[31merror[0m] [0m[0m    val error = Input(SInt(6.W))[0m
+[0m[[0m[31merror[0m] [0m[0m                      ^[0m
+[0m[[0m[31merror[0m] [0m[0m/scratch/eecs251b-aal/251b-proj/generators/rx-cancellers/src/main/scala/firSegment.scala:12:30: value W is not a member of Int[0m
+[0m[[0m[31merror[0m] [0m[0m    val error = Input(SInt(6.W))[0m
+[0m[[0m[31merror[0m] [0m[0m                             ^[0m
+[0m[[0m[31merror[0m] [0m[0m/scratch/eecs251b-aal/251b-proj/generators/rx-cancellers/src/main/scala/firSegment.scala:13:17: not found: value Input[0m
+[0m[[0m[31merror[0m] [0m[0m    val valid = Input(Bool())[0m
+[0m[[0m[31merror[0m] [0m[0m                ^[0m
+[0m[[0m[31merror[0m] [0m[0m/scratch/eecs251b-aal/251b-proj/generators/rx-cancellers/src/main/scala/firSegment.scala:13:23: not found: value Bool[0m
+[0m[[0m[31merror[0m] [0m[0m    val valid = Input(Bool())[0m
+[0m[[0m[31merror[0m] [0m[0m                      ^[0m
+[0m[[0m[31merror[0m] [0m[0m/scratch/eecs251b-aal/251b-proj/generators/rx-cancellers/src/main/scala/firSegment.scala:19:17: not found: value RegInit[0m
+[0m[[0m[31merror[0m] [0m[0m  val weights = RegInit(VecInit(Seq.fill(segmentSize)(0.S(5.W))))[0m
+[0m[[0m[31merror[0m] [0m[0m                ^[0m
+[0m[[0m[31merror[0m] [0m[0m/scratch/eecs251b-aal/251b-proj/generators/rx-cancellers/src/main/scala/firSegment.scala:19:25: not found: value VecInit[0m
+[0m[[0m[31merror[0m] [0m[0m  val weights = RegInit(VecInit(Seq.fill(segmentSize)(0.S(5.W))))[0m
+[0m[[0m[31merror[0m] [0m[0m                        ^[0m
+[0m[[0m[31merror[0m] [0m[0m/scratch/eecs251b-aal/251b-proj/generators/rx-cancellers/src/main/scala/firSegment.scala:19:57: value S is not a member of Int[0m
+[0m[[0m[31merror[0m] [0m[0m  val weights = RegInit(VecInit(Seq.fill(segmentSize)(0.S(5.W))))[0m
+[0m[[0m[31merror[0m] [0m[0m                                                        ^[0m
+[0m[[0m[31merror[0m] [0m[0m/scratch/eecs251b-aal/251b-proj/generators/rx-cancellers/src/main/scala/firSegment.scala:19:61: value W is not a member of Int[0m
+[0m[[0m[31merror[0m] [0m[0m  val weights = RegInit(VecInit(Seq.fill(segmentSize)(0.S(5.W))))[0m
+[0m[[0m[31merror[0m] [0m[0m                                                            ^[0m
+[0m[[0m[31merror[0m] [0m[0m/scratch/eecs251b-aal/251b-proj/generators/rx-cancellers/src/main/scala/firSegment.scala:23:3: not found: value when[0m
+[0m[[0m[31merror[0m] [0m[0m  when (io.valid) {[0m
+[0m[[0m[31merror[0m] [0m[0m  ^[0m
+[0m[[0m[31merror[0m] [0m[0m/scratch/eecs251b-aal/251b-proj/generators/rx-cancellers/src/main/scala/firSegment.scala:27:25: value S is not a member of Int[0m
+[0m[[0m[31merror[0m] [0m[0m      val maxWeight = 7.S(4.W)  [0m
+[0m[[0m[31merror[0m] [0m[0m                        ^[0m
+[0m[[0m[31merror[0m] [0m[0m/scratch/eecs251b-aal/251b-proj/generators/rx-cancellers/src/main/scala/firSegment.scala:27:29: value W is not a member of Int[0m
+[0m[[0m[31merror[0m] [0m[0m      val maxWeight = 7.S(4.W)  [0m
+[0m[[0m[31merror[0m] [0m[0m                            ^[0m
+[0m[[0m[31merror[0m] [0m[0m/scratch/eecs251b-aal/251b-proj/generators/rx-cancellers/src/main/scala/firSegment.scala:28:26: value S is not a member of Int[0m
+[0m[[0m[31merror[0m] [0m[0m      val minWeight = -8.S(4.W) [0m
+[0m[[0m[31merror[0m] [0m[0m                         ^[0m
+[0m[[0m[31merror[0m] [0m[0m/scratch/eecs251b-aal/251b-proj/generators/rx-cancellers/src/main/scala/firSegment.scala:28:30: value W is not a member of Int[0m
+[0m[[0m[31merror[0m] [0m[0m      val minWeight = -8.S(4.W) [0m
+[0m[[0m[31merror[0m] [0m[0m                             ^[0m
+[0m[[0m[31merror[0m] [0m[0m/scratch/eecs251b-aal/251b-proj/generators/rx-cancellers/src/main/scala/hybridAdaptiveFir.scala:6:80: illegal inheritance from final class Module[0m
+[0m[[0m[31merror[0m] [0m[0mclass HybridAdaptiveFIRFilter(val tapCount: Int, val segmentSize: Int) extends Module {[0m
+[0m[[0m[31merror[0m] [0m[0m                                                                               ^[0m
+[0m[[0m[31merror[0m] [0m[0m/scratch/eecs251b-aal/251b-proj/generators/rx-cancellers/src/main/scala/hybridAdaptiveFir.scala:9:12: not found: value IO[0m
+[0m[[0m[31merror[0m] [0m[0m  val io = IO(new Bundle {[0m
+[0m[[0m[31merror[0m] [0m[0m           ^[0m
+[0m[[0m[31merror[0m] [0m[0m/scratch/eecs251b-aal/251b-proj/generators/rx-cancellers/src/main/scala/hybridAdaptiveFir.scala:9:19: not found: type Bundle[0m
+[0m[[0m[31merror[0m] [0m[0m  val io = IO(new Bundle {[0m
+[0m[[0m[31merror[0m] [0m[0m                  ^[0m
+[0m[[0m[31merror[0m] [0m[0m/scratch/eecs251b-aal/251b-proj/generators/rx-cancellers/src/main/scala/hybridAdaptiveFir.scala:10:24: not found: value Input[0m
+[0m[[0m[31merror[0m] [0m[0m    val din          = Input(SInt(5.W))[0m
+[0m[[0m[31merror[0m] [0m[0m                       ^[0m
+[0m[[0m[31merror[0m] [0m[0m/scratch/eecs251b-aal/251b-proj/generators/rx-cancellers/src/main/scala/hybridAdaptiveFir.scala:10:30: not found: value SInt[0m
+[0m[[0m[31merror[0m] [0m[0m    val din          = Input(SInt(5.W))[0m
+[0m[[0m[31merror[0m] [0m[0m                             ^[0m
+[0m[[0m[31merror[0m] [0m[0m/scratch/eecs251b-aal/251b-proj/generators/rx-cancellers/src/main/scala/hybridAdaptiveFir.scala:10:37: value W is not a member of Int[0m
+[0m[[0m[31merror[0m] [0m[0m    val din          = Input(SInt(5.W))[0m
+[0m[[0m[31merror[0m] [0m[0m                                    ^[0m
+[0m[[0m[31merror[0m] [0m[0m/scratch/eecs251b-aal/251b-proj/generators/rx-cancellers/src/main/scala/hybridAdaptiveFir.scala:11:24: not found: value Input[0m
+[0m[[0m[31merror[0m] [0m[0m    val dinValid     = Input(Bool())[0m
+[0m[[0m[31merror[0m] [0m[0m                       ^[0m
+[0m[[0m[31merror[0m] [0m[0m/scratch/eecs251b-aal/251b-proj/generators/rx-cancellers/src/main/scala/hybridAdaptiveFir.scala:11:30: not found: value Bool[0m
+[0m[[0m[31merror[0m] [0m[0m    val dinValid     = Input(Bool())[0m
+[0m[[0m[31merror[0m] [0m[0m                             ^[0m
+[0m[[0m[31merror[0m] [0m[0m100 errors found[0m
