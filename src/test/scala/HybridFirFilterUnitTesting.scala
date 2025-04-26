@@ -11,10 +11,10 @@ import cancellers.CancellersTopModule
 
 class HybridFir(tapCount: Int, segmentCount: Int) extends Module {
     val io = IO(new Bundle {
-        val din          = Input(SInt(3.W))
+        val din          = Input(SInt(6.W))
         val dinValid     = Input(Bool())
         val dout         = Output(SInt(10.W))
-        val desired      = Input(SInt(6.W))
+        val desired      = Input(SInt(8.W))
 
         // For debugging
         // val weightPeek   = Output(Vec(segmentCount, SInt(10.W)))
@@ -180,12 +180,10 @@ class HybridFirFilterTest extends AnyFreeSpec with ChiselScalatestTester {
 
   "Simulated Incoming Rx Data" in {
     test(
-      new HybridFir(40, 2)
+      new HybridFir(60, 4)
     ) // 20-bit coefficients, 4 taps
     .withAnnotations(Seq(WriteVcdAnnotation)) { dut =>
-      val steps = 500
-      val noiseAmplitude = 1
-      
+      val steps = 500      
       // Signal containers
       val perfectRemoteTx = scala.collection.mutable.ArrayBuffer[Int]()
       val localTxNoise = scala.collection.mutable.ArrayBuffer[Int]()
@@ -197,21 +195,20 @@ class HybridFirFilterTest extends AnyFreeSpec with ChiselScalatestTester {
       var localNoise = Random.between(-4, 4)    // Local TX interference
 
       for (i <- 0 until steps) {
-        remoteSignal = (remoteSignal + Random.between(-1, 2)).max(-4).min(3)
-        localNoise = (localNoise + Random.between(-1, 2)).max(-4).min(3)
+        remoteSignal = (remoteSignal + Random.between(-1, 2)).max(-64).min(63)
+        localNoise = (localNoise + Random.between(-1, 2)).max(-32).min(31)
 
-        val channelNoise = (Random.nextGaussian() * noiseAmplitude).round.toInt
-        val receivedSignal = remoteSignal + (localNoise * 1) // + channelNoise  // Scale local noise
+        val receivedSignal = remoteSignal + (localNoise >> 4) // + channelNoise  // Scale local noise
 
-        dut.io.din.poke(localNoise.S(5.W))       // Local TX interference we know about
-        dut.io.desired.poke(receivedSignal.S(6.W)) // Received signal (remote + noise)
+        dut.io.din.poke(localNoise.S(6.W))       // Local TX interference we know about
+        dut.io.desired.poke(receivedSignal.S(8.W)) // Received signal (remote + noise)
         dut.io.dinValid.poke(true.B)
         dut.clock.step()
 
         perfectRemoteTx += remoteSignal
         localTxNoise += localNoise
         receivedNoisySignal += receivedSignal
-        cleanedOutputs += dut.io.dout.peek().litValue.toInt
+        cleanedOutputs += (dut.io.dout.peek().litValue.toInt) >> 4
 
         println(s"$i, $remoteSignal, $receivedSignal, ${receivedSignal - cleanedOutputs.last}")
       }

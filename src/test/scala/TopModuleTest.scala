@@ -17,8 +17,8 @@ class TopModuleBlock(echoTapCount: Int, nextTapCount: Int, segmentCount: Int) ex
       val tx3 = Input(SInt(5.W)) // next3
       val txValid = Input(Bool())
 
-      val desired   = Input(SInt(6.W)) // RX signal
-      val desiredCancelled = Output(SInt(6.W)) // Cancelled RX signal
+      val desired   = Input(SInt(8.W)) // RX signal
+      val desiredCancelled = Output(SInt(8.W)) // Cancelled RX signal
 
     })
     val dut = Module(new CancellersTopModule(echoTapCount, nextTapCount, segmentCount))

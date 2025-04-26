@@ -24,16 +24,16 @@ trait RxCancellerTopIO extends Bundle {
 
 class CancellersTopModule(val echoTapCount: Int, val nextTapCount: Int, val segSize: Int) extends Module {
     val io = IO(new Bundle {
-      val tx0 = Input(SInt(5.W)) // echo
-      val tx1 = Input(SInt(5.W)) // next 1
-      val tx2 = Input(SInt(5.W)) // next 2
-      val tx3 = Input(SInt(5.W)) // next3
+      val tx0 = Input(SInt(6.W)) // echo
+      val tx1 = Input(SInt(6.W)) // next 1
+      val tx2 = Input(SInt(6.W)) // next 2
+      val tx3 = Input(SInt(6.W)) // next3
       // don't know yet how TX digial will be outputing
       val txValid = Input(Bool()) // per Richard only need tx valid
 
       // val doutValid = Output(Bool()) 
-      val desired   = Input(SInt(6.W)) // RX signal
-      val desiredCancelled = Output(SInt(6.W)) // Cancelled RX signal
+      val desired   = Input(SInt(8.W)) // RX signal
+      val desiredCancelled = Output(SInt(8.W)) // Cancelled RX signal
     })
 
     // Instantiate three NEXT cancellers and one echo canceller
@@ -83,13 +83,13 @@ class CancellersTopModule(val echoTapCount: Int, val nextTapCount: Int, val segS
 //     }
 
 //     // registers for the tx
-//     val tx0Reg = RegInit(0.S(5.W))
-//     val tx1Reg = RegInit(0.S(5.W))
-//     val tx2Reg = RegInit(0.S(5.W))
-//     val tx3Reg = RegInit(0.S(5.W))
+//     val tx0Reg = RegInit(0.S(6.W))
+//     val tx1Reg = RegInit(0.S(6.W))
+//     val tx2Reg = RegInit(0.S(6.W))
+//     val tx3Reg = RegInit(0.S(6.W))
 //     val txValidReg = RegInit(0.U(1.W))
-//     val desiredSignalReg = RegInit(0.S(6.W))
-//     val desiredCanceledReg = RegInit(0.S(6.W))
+//     val desiredSignalReg = RegInit(0.S(8.W))
+//     val desiredCanceledReg = RegInit(0.S(8.W))
 
 //     cancellers.io.tx0 := tx0Reg
 //     cancellers.io.tx1 := tx1Reg
@@ -100,13 +100,13 @@ class CancellersTopModule(val echoTapCount: Int, val nextTapCount: Int, val segS
 //     desiredCanceledReg := cancellers.io.desiredCancelled
 
 //     regmap(
-//       0x00 -> Seq(RegFieldSInt(5, tx0Reg)),
-//       0x01 -> Seq(RegFieldSInt(5, tx1Reg)),
-//       0x02 -> Seq(RegFieldSInt(5, tx2Reg)),
-//       0x03 -> Seq(RegFieldSInt(5, tx3Reg)),
+//       0x00 -> Seq(RegFieldSInt(6, tx0Reg)),
+//       0x01 -> Seq(RegFieldSInt(6, tx1Reg)),
+//       0x02 -> Seq(RegFieldSInt(6, tx2Reg)),
+//       0x03 -> Seq(RegFieldSInt(6, tx3Reg)),
 //       0x04 -> Seq(RegField(1, txValidReg)), // this one's fine as UInt
-//       0x08 -> Seq(RegFieldSInt(6, desiredSignalReg)),
-//       0x10 -> Seq(RegField.r(6, desiredCanceledReg.asUInt)) // read-only
+//       0x08 -> Seq(RegFieldSInt(8, desiredSignalReg)),
+//       0x10 -> Seq(RegField.r(8, desiredCanceledReg.asUInt)) // read-only
 //     )
 // }
 
