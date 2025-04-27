@@ -195,9 +195,10 @@ class HybridFirFilterTest extends AnyFreeSpec with ChiselScalatestTester {
       var localNoise = Random.between(-4, 4)    // Local TX interference
 
       for (i <- 0 until steps) {
-        remoteSignal = (remoteSignal + Random.between(-1, 2)).max(-64).min(63)
+        remoteSignal = (remoteSignal + Random.between(-1, 2)).max(-100).min(100)
         localNoise = (localNoise + Random.between(-1, 2)).max(-32).min(31)
 
+        val channelNoise = (Random.nextGaussian() * noiseAmplitude).round.toInt
         val receivedSignal = remoteSignal + (localNoise >> 4) // + channelNoise  // Scale local noise
 
         dut.io.din.poke(localNoise.S(6.W))       // Local TX interference we know about

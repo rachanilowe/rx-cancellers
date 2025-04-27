@@ -22,7 +22,7 @@ class HybridAdaptiveFIRFilter(val tapCount: Int, val segmentSize: Int) extends M
   val numInputReg = (numGroups * (segmentSize - 1)) + 1
   // maybe want too add one more register at the front
   val inputShifters = RegInit(VecInit(Seq.fill(numInputReg)(0.S(6.W))))
-  val outputShifters = RegInit(VecInit(Seq.fill(numGroups - 1)(0.S(8.W))))
+  val outputShifters = RegInit(VecInit(Seq.fill(numGroups - 1)(0.S(10.W))))
   // Delay line for weight calculation for the input 
   // TODO: mess around with the inputWeightShifters
   val numInputTrackingRegs = ((numGroups * (segmentSize - 1)) + numGroups)

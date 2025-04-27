@@ -16,7 +16,7 @@ class FIRSegment(val segmentSize: Int) extends Module {
     // val weightPeek = Output(Vec(segmentSize, SInt(5.W)))
   })
 
-  val weights = RegInit(VecInit(Seq.fill(segmentSize)(0.S(6.W))))
+  val weights = RegInit(VecInit(Seq.fill(segmentSize)(0.S(3.W))))
 
   // Update weights using LMS: w_i(n+1) = w_i(n) + mu * e(n) * x(n-i+1)
   // Tap-leakage update : w_i(n+1) = (1-alpha*mu)w_i(n) - alpha * e(n) * x(n)
@@ -24,8 +24,8 @@ class FIRSegment(val segmentSize: Int) extends Module {
     for (i <- 0 until segmentSize) {
 
       // Cap weight values at 4-bit maximums on positive and negative side
-      val maxWeight = 15.S(4.W)  
-      val minWeight = -16.S(4.W) 
+      val maxWeight = 3.S(3.W)  
+      val minWeight = -4.S(3.W) 
       
       // TODO: implement tap-leakage algorithm
       val deltaW = (io.weightCalcIns(i) * io.error)  // TODO: switch to shift later
