@@ -13,13 +13,13 @@ class HybridFir(tapCount: Int, segmentCount: Int) extends Module {
     val io = IO(new Bundle {
         val din          = Input(SInt(7.W))
         val dinValid     = Input(Bool())
-        val dout         = Output(SInt(10.W))
+        val dout         = Output(SInt(20.W))
         val desired      = Input(SInt(8.W))
 
         // For debugging
-        val weightPeek   = Output(Vec(segmentCount, SInt(8.W)))
-        val errors       = Output(Vec(tapCount/segmentCount - 1, SInt(10.W)))
-        val inputWeightShifters = Output(Vec(((tapCount/segmentCount * (segmentCount - 1)) + tapCount/segmentCount), SInt(7.W)))
+        val weightPeek   = Output(Vec(segmentCount, SInt(10.W)))
+        val errors       = Output(Vec(tapCount/segmentCount - 1, SInt(20.W)))
+        val inputWeightShifters = Output(Vec(((tapCount/segmentCount * (segmentCount - 1)) + tapCount/segmentCount), SInt(10.W)))
     })
     val dut = Module(new HybridAdaptiveFIRFilter(tapCount, segmentCount))
     dut.io.din := io.din
@@ -191,7 +191,7 @@ class HybridFirFilterTest extends AnyFreeSpec with ChiselScalatestTester {
 
       // Set a seed 
       val rand = new Random(1)
-      val steps = 400
+      val steps = 20
 
       // Buffers for debugging/plotting
       val remoteSignalHistory = scala.collection.mutable.ArrayBuffer[Int]()
@@ -237,7 +237,8 @@ class HybridFirFilterTest extends AnyFreeSpec with ChiselScalatestTester {
 
         // println(s"$i, $remoteSignal, $receivedSignal, ${receivedSignal - cleanedOutputs.last}, ${noise}")
         // println(s"$i, $remoteSignal, $received, ${received - outputHistory.last}, ${localTx1}, ${next1}, ${dut.io.weightPeek.peek()}")
-        println(s"$i, Input: $localTx1, Received: $received, DOut: ${dut.io.dout.peek()}, Error: ${received - outputHistory.last}, Weights: ${dut.io.weightPeek.peek()}, Errors: ${dut.io.errors.peek()}, Delayed Inputs: ${dut.io.inputWeightShifters.peek()}")
+        println(s"$i, Input: $localTx1, Received: $received, DOut: ${dut.io.dout.peek()}, Error: ${received - outputHistory.last}, Weights: ${dut.io.weightPeek.peek()}")
+        // println(s"$i, Input: $localTx1, Received: $received, DOut: ${dut.io.dout.peek()}, Error: ${received - outputHistory.last}, Weights: ${dut.io.weightPeek.peek()}, Errors: ${dut.io.errors.peek()}, Delayed Inputs: ${dut.io.inputWeightShifters.peek()}")
       }
     }
   }

@@ -13,8 +13,8 @@ class HybridAdaptiveFIRFilter(val tapCount: Int, val segmentSize: Int) extends M
     val desired      = Input(SInt(8.W))
 
     // For debugging
-    val weightPeek   = Output(Vec(segmentSize, SInt(5.W)))
-    val errors       = Output(Vec(tapCount/segmentSize - 1, SInt(10.W)))
+    val weightPeek   = Output(Vec(segmentSize, SInt(10.W)))
+    val errors       = Output(Vec(tapCount/segmentSize - 1, SInt(20.W)))
     val inputWeightShifters = Output(Vec(((tapCount/segmentSize * (segmentSize - 1)) + tapCount/segmentSize), SInt(7.W)))
   })
 
@@ -24,14 +24,14 @@ class HybridAdaptiveFIRFilter(val tapCount: Int, val segmentSize: Int) extends M
   val numInputReg = (numGroups * (segmentSize - 1)) + 1
   // maybe want to add one more register at the front
   val inputShifters = RegInit(VecInit(Seq.fill(numInputReg)(0.S(7.W))))
-  val outputShifters = RegInit(VecInit(Seq.fill(numGroups - 1)(0.S(10.W))))
+  val outputShifters = RegInit(VecInit(Seq.fill(numGroups - 1)(0.S(20.W))))
   // Delay line for weight calculation for the input 
   // TODO: mess around with the inputWeightShifters
   val numInputTrackingRegs = ((numGroups * (segmentSize - 1)) + numGroups)
   val inputWeightShifters = RegInit(VecInit(Seq.fill(numInputTrackingRegs)(0.S(7.W))))
 
   // The last FIRSegment should be directly connected to (desired - dout) * mu
-  val errorShifters = RegInit(VecInit(Seq.fill(numGroups - 1)(0.S(10.W))))
+  val errorShifters = RegInit(VecInit(Seq.fill(numGroups - 1)(0.S(20.W))))
   val desiredDelayed = RegInit(0.S(8.W))
 
   // each group is a fir filter so we can use a simple fir module
@@ -40,8 +40,8 @@ class HybridAdaptiveFIRFilter(val tapCount: Int, val segmentSize: Int) extends M
   for ((seg, idx) <- segments.zipWithIndex) {
     seg.io.inputs := VecInit(Seq.fill(segmentSize)(0.S(7.W)))
     seg.io.weightCalcIns := VecInit(Seq.fill(segmentSize)(0.S(7.W)))
-    seg.io.partialSum := 0.S(8.W)
-    seg.io.error := 0.S(10.W)
+    seg.io.partialSum := 0.S(20.W)
+    seg.io.error := 0.S(20.W)
     seg.io.valid := false.B 
 
     // Connect output even if unused

@@ -7,16 +7,16 @@ class FIRSegment(val segmentSize: Int) extends Module {
   val io = IO(new Bundle {
     val inputs       = Input(Vec(segmentSize, SInt(7.W)))
     val weightCalcIns = Input(Vec(segmentSize, SInt(7.W))) // the delay of inputs for weight calculation
-    val dout      = Output(SInt(10.W))
-    val partialSum = Input(SInt(10.W))
-    val error = Input(SInt(10.W))
+    val dout      = Output(SInt(20.W))
+    val partialSum = Input(SInt(20.W))
+    val error = Input(SInt(20.W))
     val valid = Input(Bool())
 
     // For debugging
-    val weightPeek = Output(Vec(segmentSize, SInt(10.W)))
+    val weightPeek = Output(Vec(segmentSize, SInt(5.W)))
   })
 
-  val weights = RegInit(VecInit(Seq.fill(segmentSize)(0.S(10.W))))
+  val weights = RegInit(VecInit(Seq.fill(segmentSize)(0.S(16.W))))
 
   // Update weights using LMS: w_i(n+1) = w_i(n) + mu * e(n) * x(n-i+1)
   // Tap-leakage update : w_i(n+1) = (1-alpha*mu)w_i(n) - alpha * e(n) * x(n)
@@ -29,10 +29,10 @@ class FIRSegment(val segmentSize: Int) extends Module {
       
       // TODO: implement tap-leakage algorithm
       val deltaW = (io.weightCalcIns(i) * (io.error))  // TODO: switch to shift later
-      val weightUpdate = (weights(i)) - (deltaW >> 5)
-      // val weightUpdate = ((127.S * weights(i)) >> 12) - ((63.S * deltaW) >> 6)
-      weights(i) := Mux(weightUpdate > maxWeight, maxWeight, Mux(weightUpdate < minWeight, minWeight, weightUpdate))
-      // weights(i) := weightUpdate
+      val weightUpdate = (weights(i)) - (deltaW >> 1)
+      // val weightUpdate = ((5.S * weights(i)) >> 8) - ((3.S * deltaW) >> 4)
+      // weights(i) := Mux(weightUpdate > maxWeight, maxWeight, Mux(weightUpdate < minWeight, minWeight, weightUpdate))
+      weights(i) := weightUpdate
     }
   }
 
