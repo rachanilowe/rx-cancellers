@@ -13,7 +13,7 @@ class FIRSegment(val segmentSize: Int) extends Module {
     val valid = Input(Bool())
 
     // For debugging
-    val weightPeek = Output(Vec(segmentSize, SInt(5.W)))
+    val weightPeek = Output(Vec(segmentSize, SInt(16.W)))
   })
 
   val weights = RegInit(VecInit(Seq.fill(segmentSize)(0.S(16.W))))
@@ -29,7 +29,8 @@ class FIRSegment(val segmentSize: Int) extends Module {
       
       // TODO: implement tap-leakage algorithm
       val deltaW = (io.weightCalcIns(i) * (io.error))  // TODO: switch to shift later
-      val weightUpdate = (weights(i)) - (deltaW >> 1)
+      // val weightUpdate = ((weights(i))) - ((deltaW >> 7))
+      val weightUpdate = ((511.S * weights(i)) >> 9) + ((deltaW >> 6))
       // val weightUpdate = ((5.S * weights(i)) >> 8) - ((3.S * deltaW) >> 4)
       // weights(i) := Mux(weightUpdate > maxWeight, maxWeight, Mux(weightUpdate < minWeight, minWeight, weightUpdate))
       weights(i) := weightUpdate

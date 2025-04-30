@@ -13,7 +13,7 @@ class HybridAdaptiveFIRFilter(val tapCount: Int, val segmentSize: Int) extends M
     val desired      = Input(SInt(8.W))
 
     // For debugging
-    val weightPeek   = Output(Vec(segmentSize, SInt(10.W)))
+    val weightPeek   = Output(Vec(segmentSize, SInt(16.W)))
     val errors       = Output(Vec(tapCount/segmentSize - 1, SInt(20.W)))
     val inputWeightShifters = Output(Vec(((tapCount/segmentSize * (segmentSize - 1)) + tapCount/segmentSize), SInt(7.W)))
   })
@@ -72,7 +72,7 @@ class HybridAdaptiveFIRFilter(val tapCount: Int, val segmentSize: Int) extends M
     }
   }
 
-  val firOutput = segments(0).io.dout
+  val firOutput = (segments(0).io.dout) 
   desiredDelayed := io.desired
   val error = desiredDelayed - firOutput
 

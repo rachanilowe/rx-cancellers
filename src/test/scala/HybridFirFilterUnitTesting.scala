@@ -3,6 +3,7 @@ package cancellers
 import chisel3._
 import chiseltest._
 import org.scalatest.freespec.AnyFreeSpec
+import scala.collection.mutable.ArrayBuffer
 import scala.util.Random
 import scala.math._
 
@@ -183,29 +184,53 @@ class HybridFirFilterTest extends AnyFreeSpec with ChiselScalatestTester {
     }
   }
 
-  "Simulated Incoming Rx Data" in {
+  "Simulated Incoming Rx Data with One 'NEXT' Source" in {
     test(
-      new HybridFir(6, 3)
+      new HybridFir(6, 2)
     ) // 20-bit coefficients, 4 taps
     .withAnnotations(Seq(WriteVcdAnnotation)) { dut =>
 
       // Set a seed 
       val rand = new Random(1)
-      val steps = 20
+      val steps = 50
 
-      // Buffers for debugging/plotting
-      val remoteSignalHistory = scala.collection.mutable.ArrayBuffer[Int]()
-      val localTx1History = scala.collection.mutable.ArrayBuffer[Int]()
-      val receivedHistory = scala.collection.mutable.ArrayBuffer[Int]()
+      // // Buffers for debugging/plotting
+      // val remoteSignalHistory = scala.collection.mutable.ArrayBuffer[Int]()
+      // val localTx1History = scala.collection.mutable.ArrayBuffer[Int]()
+      // val receivedHistory = scala.collection.mutable.ArrayBuffer[Int]()
       val outputHistory = scala.collection.mutable.ArrayBuffer[Int]()
 
-      // NEXT parameters
-      val nextLossDb = 36 // Typical 1000Base-T NEXT
-      val nextCoupling = math.pow(10, -nextLossDb / 20.0)
+      // // NEXT parameters
+      // val nextLossDb = 36 // Typical 1000Base-T NEXT
+      // val nextCoupling = math.pow(10, -nextLossDb / 20.0)
 
-      // Initial signals
-      var remoteSignal = Random.between(-4, 4)
-      var localTx1 = Random.between(-4, 4)
+      // // Initial signals
+      // var remoteSignal = Random.between(-4, 4)
+      // var localTx1 = Random.between(-4, 4)
+
+      val localTx1 = ArrayBuffer(
+        -28, 22, 29, -31, -6, 27, 30, 3, -12, -28,
+        30, 9, -23, -1, 14, -27, 21, -15, 13, 16,
+        21, 4, 1, 26, -10, 6, 14, -15, 26, -2,
+        24, 16, -27, -32, -2, -15, -8, 6, 14, -2,
+        8, 25, 23, 28, -24, 9, -12, -4, 20, -2
+      )
+
+      val received = ArrayBuffer(
+        -56, 29, 46, -51, -27, 15, 20, 25, 1, -70,
+        25, -3, -13, 5, -5, -45, 53, -15, 23, 48,
+        54, -24, -4, 27, -21, -14, -7, -37, 41, 6,
+        36, 36, -67, -63, -9, -5, -12, 39, 43, 15,
+        36, 50, 55, 51, -39, 21, 0, -33, 0, 27
+      )
+
+      val remoteSignal = ArrayBuffer(
+        -14, -4, 3, -4, -18, -25, -25, 21, 19, -28,
+        -20, -16, 22, 7, -26, -4, 22, 8, 4, 24,
+        23, -30, -5, -12, -6, -23, -28, -14, 2, 9,
+        0, 12, -26, -15, -6, 18, 0, 30, 22, 18,
+        24, 13, 21, 9, -3, 8, 18, -27, -30, 30
+      )
 
       dut.io.dinValid.poke(false.B)
       dut.clock.step()
@@ -213,31 +238,31 @@ class HybridFirFilterTest extends AnyFreeSpec with ChiselScalatestTester {
 
       for (i <- 0 until steps) {
 
-        // Random walks for signal changes
-        remoteSignal = (remoteSignal + Random.between(-16, 16)).max(-128).min(127)
-        localTx1 = (localTx1 + Random.between(-12, 16)).max(-32).min(32)
+        // // Random walks for signal changes
+        // remoteSignal = (Random.between(-32, 31)).max(-32).min(31)
+        // localTx1 = (Random.between(-32, 31)).max(-32).min(31)
 
-        // NEXT contribution from localTx1
-        val next1 = (localTx1 * nextCoupling).round.toInt
+        // // NEXT contribution from localTx1. Based on Python model to just check for accuracy.
+        // val next1 = ((localTx1 * 3) >> 1).round.toInt
 
-        // Received signal = Remote + NEXT1 only
-        val received = (remoteSignal + next1).max(-128).min(127)
+        // // Received signal = Remote + NEXT1 only. Probably won't hit these limits
+        // val received = (remoteSignal + next1).max(-64).min(63)
 
         // Feed into DUT
-        dut.io.din.poke(localTx1.S(7.W))          // TX1 data
-        dut.io.desired.poke(received.S(8.W))       // RX signal (remote + NEXT1)
+        dut.io.din.poke(localTx1(i).S(7.W))          // TX1 data
+        dut.io.desired.poke(received(i).S(8.W))       // RX signal (remote + NEXT1)
         dut.io.dinValid.poke(true.B)
         dut.clock.step()
 
         // Record
-        remoteSignalHistory += remoteSignal
-        localTx1History += localTx1
-        receivedHistory += received
+        // remoteSignalHistory += remoteSignal
+        // localTx1History += localTx1
+        // receivedHistory += received
         outputHistory += (dut.io.dout.peek().litValue.toInt)
 
         // println(s"$i, $remoteSignal, $receivedSignal, ${receivedSignal - cleanedOutputs.last}, ${noise}")
         // println(s"$i, $remoteSignal, $received, ${received - outputHistory.last}, ${localTx1}, ${next1}, ${dut.io.weightPeek.peek()}")
-        println(s"$i, Input: $localTx1, Received: $received, DOut: ${dut.io.dout.peek()}, Error: ${received - outputHistory.last}, Weights: ${dut.io.weightPeek.peek()}")
+        println(s"$i, Input: ${localTx1(i)}, Received: ${received(i)}, DOut: ${dut.io.dout.peek()}, Error: ${received(i) - outputHistory.last}, Weights: ${dut.io.weightPeek.peek()}")
         // println(s"$i, Input: $localTx1, Received: $received, DOut: ${dut.io.dout.peek()}, Error: ${received - outputHistory.last}, Weights: ${dut.io.weightPeek.peek()}, Errors: ${dut.io.errors.peek()}, Delayed Inputs: ${dut.io.inputWeightShifters.peek()}")
       }
     }
