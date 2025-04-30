@@ -5,8 +5,8 @@ import chisel3.util._
 
 class FIRSegment(val segmentSize: Int) extends Module {
   val io = IO(new Bundle {
-    val inputs       = Input(Vec(segmentSize, SInt(7.W)))
-    val weightCalcIns = Input(Vec(segmentSize, SInt(7.W))) // the delay of inputs for weight calculation
+    val inputs       = Input(Vec(segmentSize, SInt(6.W)))
+    val weightCalcIns = Input(Vec(segmentSize, SInt(6.W))) // the delay of inputs for weight calculation
     val dout      = Output(SInt(20.W))
     val partialSum = Input(SInt(20.W))
     val error = Input(SInt(20.W))
@@ -30,7 +30,7 @@ class FIRSegment(val segmentSize: Int) extends Module {
       // TODO: implement tap-leakage algorithm
       val deltaW = (io.weightCalcIns(i) * (io.error))  // TODO: switch to shift later
       // val weightUpdate = ((weights(i))) - ((deltaW >> 7))
-      val weightUpdate = ((511.S * weights(i)) >> 9) + ((deltaW >> 6))
+      val weightUpdate = ((255.S * weights(i)) >> 8) + ((deltaW >> 7))
       // val weightUpdate = ((5.S * weights(i)) >> 8) - ((3.S * deltaW) >> 4)
       // weights(i) := Mux(weightUpdate > maxWeight, maxWeight, Mux(weightUpdate < minWeight, minWeight, weightUpdate))
       weights(i) := weightUpdate
@@ -40,7 +40,7 @@ class FIRSegment(val segmentSize: Int) extends Module {
   val sum = weights.zip(io.inputs).map { case (w, d) => w * d }.reduce(_ + _)
 
   // Attempt to shrink output data
-  io.dout := ((sum) + io.partialSum)
+  io.dout := ((sum) + io.partialSum) >> 5
 
   io.weightPeek := weights
 }

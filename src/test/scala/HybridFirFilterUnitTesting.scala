@@ -186,7 +186,7 @@ class HybridFirFilterTest extends AnyFreeSpec with ChiselScalatestTester {
 
   "Simulated Incoming Rx Data with One 'NEXT' Source" in {
     test(
-      new HybridFir(12, 2)
+      new HybridFir(60, 4)
     ) // 20-bit coefficients, 4 taps
     .withAnnotations(Seq(WriteVcdAnnotation)) { dut =>
 
@@ -247,19 +247,19 @@ class HybridFirFilterTest extends AnyFreeSpec with ChiselScalatestTester {
         3, 29, 25
       )
 
-      val received = ArrayBuffer(
-        -13, 62, 21, -33, 10, 29, 66, -20, -11, -72, 54, 22, -58, 16, 36, -37, 22, -25, 8, 31,
-        11, -20, -3, 16, 6, 1, 45, -53, 57, -10, 47, 16, -32, -74, -29, -51, 2, 27, 30, -14,
-        0, 20, 46, 31, -65, 25, -39, 12, 54, 9, -67, -56, 70, 37, -10, -9, -30, 38, 44, -9,
-        -1, -13, 28, -37, 11, 5, 7, 22, 29, 20, 18, -5, -41, -52, -8, 46, 5, -43, -25, -35,
-        57, 9, 19, 7, 12, -26, -64, 27, 4, 28, -45, -10, 56, 55, -8, -3, 36, -13, 24, 30,
-        64, -56, 1, 28, 38, 9, -1, 38, 23, 5, 57, 11, 35, -25, 0, -54, -31, 33, -56, -11,
-        -2, -13, -25, -25, 52, 21, -31, 10, 11, 56, -12, -29, 62, 44, 5, -46, 10, 22, -14, -22,
-        13, -50, -43, 12, 27, -3, 6, -15, -20, -58, -10, -50, 26, -50, -4, 18, -29, 35, -38, -64,
-        11, 24, 12, -56, -1, 14, 49, 63, 17, 13, 12, -55, -29, 17, 63, 44, 1, -26, -35, 33,
-        -42, -59, 44, -31, 8, 42, 11, -5, -8, 21, -10, -5, 50, 11, -4, 37, 38, 4, -21, 18,
-        12, 56
-      )
+      // val received = ArrayBuffer(
+      //   -13, 62, 21, -33, 10, 29, 66, -20, -11, -72, 54, 22, -58, 16, 36, -37, 22, -25, 8, 31,
+      //   11, -20, -3, 16, 6, 1, 45, -53, 57, -10, 47, 16, -32, -74, -29, -51, 2, 27, 30, -14,
+      //   0, 20, 46, 31, -65, 25, -39, 12, 54, 9, -67, -56, 70, 37, -10, -9, -30, 38, 44, -9,
+      //   -1, -13, 28, -37, 11, 5, 7, 22, 29, 20, 18, -5, -41, -52, -8, 46, 5, -43, -25, -35,
+      //   57, 9, 19, 7, 12, -26, -64, 27, 4, 28, -45, -10, 56, 55, -8, -3, 36, -13, 24, 30,
+      //   64, -56, 1, 28, 38, 9, -1, 38, 23, 5, 57, 11, 35, -25, 0, -54, -31, 33, -56, -11,
+      //   -2, -13, -25, -25, 52, 21, -31, 10, 11, 56, -12, -29, 62, 44, 5, -46, 10, 22, -14, -22,
+      //   13, -50, -43, 12, 27, -3, 6, -15, -20, -58, -10, -50, 26, -50, -4, 18, -29, 35, -38, -64,
+      //   11, 24, 12, -56, -1, 14, 49, 63, 17, 13, 12, -55, -29, 17, 63, 44, 1, -26, -35, 33,
+      //   -42, -59, 44, -31, 8, 42, 11, -5, -8, 21, -10, -5, 50, 11, -4, 37, 38, 4, -21, 18,
+      //   12, 56
+      // )
 
       val remoteSignal = ArrayBuffer(
         29, 29, -22, 14, 19, -11, 21, -24, 7, -30, 9, 9, -23, 18, 15, 4, -9, -2, -11, 7,
@@ -292,8 +292,9 @@ class HybridFirFilterTest extends AnyFreeSpec with ChiselScalatestTester {
         // val received = (remoteSignal + next1).max(-64).min(63)
 
         // Feed into DUT
+        val receivedSignal = remoteSignal(i) + (localTx1(i) >> 2)
         dut.io.din.poke(localTx1(i).S(7.W))          // TX1 data
-        dut.io.desired.poke(received(i).S(8.W))       // RX signal (remote + NEXT1)
+        dut.io.desired.poke(receivedSignal.S(8.W))       // RX signal (remote + NEXT1)
         dut.io.dinValid.poke(true.B)
         dut.clock.step()
 
@@ -306,7 +307,7 @@ class HybridFirFilterTest extends AnyFreeSpec with ChiselScalatestTester {
         // println(s"$i, $remoteSignal, $receivedSignal, ${receivedSignal - cleanedOutputs.last}, ${noise}")
         // println(s"$i, $remoteSignal, $received, ${received - outputHistory.last}, ${localTx1}, ${next1}, ${dut.io.weightPeek.peek()}")
         // println(s"$i, Input: ${localTx1(i)}, Received: ${received(i)}, DOut: ${dut.io.dout.peek()}, Error: ${received(i) - outputHistory.last}, Weights: ${dut.io.weightPeek.peek()}")
-        println(s"$i, ${localTx1(i)}, ${received(i)}, ${received(i) - outputHistory.last}, Weights: ${dut.io.weightPeek.peek()}")
+        println(s"$i, ${remoteSignal(i)}, ${receivedSignal}, ${receivedSignal - outputHistory.last}, Weights: ${dut.io.weightPeek.peek()}")
         // println(s"$i, Input: $localTx1, Received: $received, DOut: ${dut.io.dout.peek()}, Error: ${received - outputHistory.last}, Weights: ${dut.io.weightPeek.peek()}, Errors: ${dut.io.errors.peek()}, Delayed Inputs: ${dut.io.inputWeightShifters.peek()}")
       }
     }

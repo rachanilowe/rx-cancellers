@@ -34,7 +34,22 @@ class CancellersTopModule(val echoTapCount: Int, val nextTapCount: Int, val segS
       // val doutValid = Output(Bool()) 
       val desired   = Input(SInt(8.W)) // RX signal
       val desiredCancelled = Output(SInt(8.W)) // Cancelled RX signal
+
     })
+
+    val desiredReg = RegInit(0.S(8.W))
+    desiredReg := io.desired
+    val tx0Reg = RegInit(0.S(6.W))
+    val tx1Reg = RegInit(0.S(6.W))
+    val tx2Reg = RegInit(0.S(6.W))
+    val tx3Reg = RegInit(0.S(6.W))
+    tx0Reg := io.tx0
+    tx1Reg := io.tx1
+    tx2Reg := io.tx2
+    tx3Reg := io.tx3
+    val validReg = RegInit(false.B)
+    validReg := io.txValid
+    
 
     // Instantiate three NEXT cancellers and one echo canceller
     val echoCanceller = Module(new HybridAdaptiveFIRFilter(echoTapCount, segSize))
@@ -42,27 +57,31 @@ class CancellersTopModule(val echoTapCount: Int, val nextTapCount: Int, val segS
     val nextCanceller2 = Module(new HybridAdaptiveFIRFilter(nextTapCount, segSize))
     val nextCanceller3 = Module(new HybridAdaptiveFIRFilter(nextTapCount, segSize))
     
-    echoCanceller.io.din := io.tx0
-    nextCanceller1.io.din := io.tx1
-    nextCanceller2.io.din := io.tx2
-    nextCanceller3.io.din := io.tx3
+    echoCanceller.io.din := tx0Reg
+    nextCanceller1.io.din := tx1Reg
+    nextCanceller2.io.din := tx2Reg
+    nextCanceller3.io.din := tx3Reg
 
-    echoCanceller.io.desired := io.desired
-    nextCanceller1.io.desired := io.desired
-    nextCanceller2.io.desired := io.desired
-    nextCanceller3.io.desired := io.desired
+    echoCanceller.io.desired := desiredReg
+    nextCanceller1.io.desired := desiredReg
+    nextCanceller2.io.desired := desiredReg
+    nextCanceller3.io.desired := desiredReg
+  
 
-    echoCanceller.io.dinValid :=  Mux(io.txValid, true.B, false.B)
-    nextCanceller1.io.dinValid := Mux(io.txValid, true.B, false.B)
-    nextCanceller2.io.dinValid := Mux(io.txValid, true.B, false.B)
-    nextCanceller3.io.dinValid := Mux(io.txValid, true.B, false.B)
+    echoCanceller.io.dinValid :=  Mux(validReg, true.B, false.B)
+    nextCanceller1.io.dinValid := Mux(validReg, true.B, false.B)
+    nextCanceller2.io.dinValid := Mux(validReg, true.B, false.B)
+    nextCanceller3.io.dinValid := Mux(validReg, true.B, false.B)
 
     // Might also need to check if the desired signal is valid?
     // val validOutput = echoCanceller.io.doutValid & nextCanceller1.io.doutValid & nextCanceller2.io.doutValid & nextCanceller3.io.doutValid
     // io.doutValid := validOutput
     // Filtered data
     // if tx is not valid input then we are not cancelling anything
-    io.desiredCancelled := io.desired - (echoCanceller.io.dout + nextCanceller1.io.dout + nextCanceller2.io.dout + nextCanceller3.io.dout)
+    val total = RegInit(0.S(14.W))
+    total := echoCanceller.io.dout + nextCanceller1.io.dout + nextCanceller2.io.dout + nextCanceller3.io.dout
+    val sub = desiredReg - (total >> 8)
+    io.desiredCancelled := sub
 }
 
 // trait CancellersTop extends HasRegMap {
