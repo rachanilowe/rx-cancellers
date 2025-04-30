@@ -38,7 +38,7 @@ class FIRSegment(val segmentSize: Int) extends Module {
   val sum = weights.zip(io.inputs).map { case (w, d) => w * d }.reduce(_ + _)
 
   // Attempt to shrink output data
-  io.dout := (sum + io.partialSum) >> 4
+  io.dout := (sum + io.partialSum) >> 5
 
   // io.weightPeek := weights
 }

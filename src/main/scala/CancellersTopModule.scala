@@ -77,7 +77,10 @@ class CancellersTopModule(val echoTapCount: Int, val nextTapCount: Int, val segS
     // io.doutValid := validOutput
     // Filtered data
     // if tx is not valid input then we are not cancelling anything
-    io.desiredCancelled := io.desired - (echoCanceller.io.dout + nextCanceller1.io.dout + nextCanceller2.io.dout + nextCanceller3.io.dout)
+    val total = RegInit(0.S(14.W))
+    total := echoCanceller.io.dout + nextCanceller1.io.dout + nextCanceller2.io.dout + nextCanceller3.io.dout
+    val sub = desiredReg - (total >> 2)
+    io.desiredCancelled := sub
 }
 
 // trait CancellersTop extends HasRegMap {
