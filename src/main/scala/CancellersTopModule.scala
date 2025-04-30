@@ -36,6 +36,19 @@ class CancellersTopModule(val echoTapCount: Int, val nextTapCount: Int, val segS
       val desiredCancelled = Output(SInt(8.W)) // Cancelled RX signal
     })
 
+      val desiredReg = RegInit(0.S(8.W))
+      desiredReg := io.desired
+      val tx0Reg = RegInit(0.S(6.W))
+      val tx1Reg = RegInit(0.S(6.W))
+      val tx2Reg = RegInit(0.S(6.W))
+      val tx3Reg = RegInit(0.S(6.W))
+      tx0Reg := io.tx0
+      tx1Reg := io.tx1
+      tx2Reg := io.tx2
+      tx3Reg := io.tx3
+      val validReg = RegInit(false.B)
+      validReg := io.txValid
+
     // Instantiate three NEXT cancellers and one echo canceller
     val echoCanceller = Module(new HybridAdaptiveFIRFilter(echoTapCount, segSize))
     val nextCanceller1 = Module(new HybridAdaptiveFIRFilter(nextTapCount, segSize))
