@@ -57,6 +57,8 @@ class CancellersTopModule(val echoTapCount: Int, val nextTapCount: Int, val segS
     nextCanceller2.io.dinValid := Mux(io.txValid, true.B, false.B)
     nextCanceller3.io.dinValid := Mux(io.txValid, true.B, false.B)
 
+    
+
     // Might also need to check if the desired signal is valid?
     // val validOutput = echoCanceller.io.doutValid & nextCanceller1.io.doutValid & nextCanceller2.io.doutValid & nextCanceller3.io.doutValid
     // io.doutValid := validOutput

@@ -24,7 +24,7 @@ class FIRSegment(val segmentSize: Int) extends Module {
     for (i <- 0 until segmentSize) {
 
       // Cap weight values at 4-bit maximums on positive and negative side
-      val maxWeight = 1.S(3.W)  
+      val maxWeight = 2.S(3.W)  
       val minWeight = -2.S(3.W) 
       
       // TODO: implement tap-leakage algorithm
