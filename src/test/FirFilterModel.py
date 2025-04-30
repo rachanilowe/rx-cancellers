@@ -14,7 +14,7 @@ scale = 128            # Scaling y
 tx_data = [random.randint(-32, 31) for _ in range(N)]
 remote_signal_clean = [random.randint(-32, 31) for _ in range(N)]
 
-noise = [(3 * Tx_data[i]) // 2 for i in range(N)]
+noise = [(3 * tx_data[i]) // 2 for i in range(N)]
 
 remote_signal = [remote_signal_clean[i] + noise[i] for i in range(N)]
 
@@ -26,7 +26,7 @@ output = []
 x_buffer = []
 
 for T in range(N):
-    x_buffer.insert(0, Tx_data[T])  
+    x_buffer.insert(0, tx_data[T])  
     if len(x_buffer) > D + L - 1:
         x_buffer.pop() 
 
@@ -49,7 +49,7 @@ for T in range(N):
         e_T_D = d_T_D - y_T_D
         cleaned.append(e_T_D)
 
-        print(f"Step {T}: Input - {Tx_data[T]}, Desired - {remote_signal[T]}, Original Desired - {remote_signal_clean[T]}, Weights - {w}, Filtered - {cleaned[T]}")
+        print(f"Step {T}: Input - {tx_data[T]}, Desired - {remote_signal[T]}, Original Desired - {remote_signal_clean[T]}, Weights - {w}, Filtered - {cleaned[T]}")
 
         # Weight update - Tap-leakage DLMS
         # Keep similar to what's in FIRSegment
