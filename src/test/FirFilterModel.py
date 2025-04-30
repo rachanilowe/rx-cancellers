@@ -58,7 +58,7 @@ for T in range(N):
 
         # Weight update
         for i in range(L):
-            w[i] = ((scale - gamma_fp) * w[i] + mu_fp * e_T_D * x_T_D[i]) // scale
+            w[i] = (((w[i] * 511) >> 9) + ((e_T_D * x_T_D[i]) >> 6))
     else:
         output.append(0)
         cleaned.append(0)

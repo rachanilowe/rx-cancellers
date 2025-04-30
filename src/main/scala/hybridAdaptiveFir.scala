@@ -72,7 +72,7 @@ class HybridAdaptiveFIRFilter(val tapCount: Int, val segmentSize: Int) extends M
     }
   }
 
-  val firOutput = (segments(0).io.dout) 
+  val firOutput = (segments(0).io.dout) >> 7
   desiredDelayed := io.desired
   val error = desiredDelayed - firOutput
 
