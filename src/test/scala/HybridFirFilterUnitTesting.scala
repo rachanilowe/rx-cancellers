@@ -11,22 +11,27 @@ import cancellers.CancellersTopModule
 
 class HybridFir(tapCount: Int, segmentCount: Int) extends Module {
     val io = IO(new Bundle {
-        val din          = Input(SInt(6.W))
+        val din          = Input(SInt(7.W))
         val dinValid     = Input(Bool())
         val dout         = Output(SInt(10.W))
         val desired      = Input(SInt(8.W))
 
         // For debugging
-        // val weightPeek   = Output(Vec(segmentCount, SInt(10.W)))
+        val weightPeek   = Output(Vec(segmentCount, SInt(8.W)))
+        val errors       = Output(Vec(tapCount/segmentCount - 1, SInt(10.W)))
+        val inputWeightShifters = Output(Vec(((tapCount/segmentCount * (segmentCount - 1)) + tapCount/segmentCount), SInt(7.W)))
     })
     val dut = Module(new HybridAdaptiveFIRFilter(tapCount, segmentCount))
     dut.io.din := io.din
     dut.io.dinValid := io.dinValid
     dut.io.desired := io.desired
-    // io.weightPeek := dut.io.weightPeek
+    io.weightPeek := dut.io.weightPeek
+    io.dout := dut.io.dout
     // io.input0 := dut.io.input0
 
     io.dout := dut.io.dout
+    io.errors := dut.io.errors
+    io.inputWeightShifters := dut.io.inputWeightShifters
 }            
 
 class HybridFirFilterTest extends AnyFreeSpec with ChiselScalatestTester {
@@ -180,38 +185,59 @@ class HybridFirFilterTest extends AnyFreeSpec with ChiselScalatestTester {
 
   "Simulated Incoming Rx Data" in {
     test(
-      new HybridFir(60, 4)
+      new HybridFir(6, 3)
     ) // 20-bit coefficients, 4 taps
     .withAnnotations(Seq(WriteVcdAnnotation)) { dut =>
-      val steps = 500      
-      // Signal containers
-      val perfectRemoteTx = scala.collection.mutable.ArrayBuffer[Int]()
-      val localTxNoise = scala.collection.mutable.ArrayBuffer[Int]()
-      val receivedNoisySignal = scala.collection.mutable.ArrayBuffer[Int]()
-      val cleanedOutputs = scala.collection.mutable.ArrayBuffer[Int]()
 
-      // 1. Generate independent signals
-      var remoteSignal = Random.between(-4, 4)  // Perfect data we want to recover
-      var localNoise = Random.between(-4, 4)    // Local TX interference
+      // Set a seed 
+      val rand = new Random(1)
+      val steps = 400
+
+      // Buffers for debugging/plotting
+      val remoteSignalHistory = scala.collection.mutable.ArrayBuffer[Int]()
+      val localTx1History = scala.collection.mutable.ArrayBuffer[Int]()
+      val receivedHistory = scala.collection.mutable.ArrayBuffer[Int]()
+      val outputHistory = scala.collection.mutable.ArrayBuffer[Int]()
+
+      // NEXT parameters
+      val nextLossDb = 36 // Typical 1000Base-T NEXT
+      val nextCoupling = math.pow(10, -nextLossDb / 20.0)
+
+      // Initial signals
+      var remoteSignal = Random.between(-4, 4)
+      var localTx1 = Random.between(-4, 4)
+
+      dut.io.dinValid.poke(false.B)
+      dut.clock.step()
+
 
       for (i <- 0 until steps) {
-        remoteSignal = (remoteSignal + Random.between(-1, 2)).max(-100).min(100)
-        localNoise = (localNoise + Random.between(-1, 2)).max(-32).min(31)
 
-        // val channelNoise = (Random.nextGaussian() * noiseAmplitude).round.toInt
-        val receivedSignal = remoteSignal + (localNoise >> 4) // + channelNoise  // Scale local noise
+        // Random walks for signal changes
+        remoteSignal = (remoteSignal + Random.between(-16, 16)).max(-128).min(127)
+        localTx1 = (localTx1 + Random.between(-12, 16)).max(-32).min(32)
 
-        dut.io.din.poke(localNoise.S(6.W))       // Local TX interference we know about
-        dut.io.desired.poke(receivedSignal.S(8.W)) // Received signal (remote + noise)
+        // NEXT contribution from localTx1
+        val next1 = (localTx1 * nextCoupling).round.toInt
+
+        // Received signal = Remote + NEXT1 only
+        val received = (remoteSignal + next1).max(-128).min(127)
+
+        // Feed into DUT
+        dut.io.din.poke(localTx1.S(7.W))          // TX1 data
+        dut.io.desired.poke(received.S(8.W))       // RX signal (remote + NEXT1)
         dut.io.dinValid.poke(true.B)
         dut.clock.step()
 
-        perfectRemoteTx += remoteSignal
-        localTxNoise += localNoise
-        receivedNoisySignal += receivedSignal
-        cleanedOutputs += (dut.io.dout.peek().litValue.toInt) >> 4
+        // Record
+        remoteSignalHistory += remoteSignal
+        localTx1History += localTx1
+        receivedHistory += received
+        outputHistory += (dut.io.dout.peek().litValue.toInt)
 
-        println(s"$i, $remoteSignal, $receivedSignal, ${receivedSignal - cleanedOutputs.last}")
+        // println(s"$i, $remoteSignal, $receivedSignal, ${receivedSignal - cleanedOutputs.last}, ${noise}")
+        // println(s"$i, $remoteSignal, $received, ${received - outputHistory.last}, ${localTx1}, ${next1}, ${dut.io.weightPeek.peek()}")
+        println(s"$i, Input: $localTx1, Received: $received, DOut: ${dut.io.dout.peek()}, Error: ${received - outputHistory.last}, Weights: ${dut.io.weightPeek.peek()}, Errors: ${dut.io.errors.peek()}, Delayed Inputs: ${dut.io.inputWeightShifters.peek()}")
       }
     }
   }
