@@ -6,6 +6,8 @@ import org.scalatest.freespec.AnyFreeSpec
 import scala.collection.mutable.ArrayBuffer
 import scala.util.Random
 import scala.math._
+import scala.io.Source
+import java.io.{File, PrintWriter}
 
 import cancellers.CancellersTopModule
 // import cancellers.{LMSFIRFilter, LMSFIRFilter_Transpose}
@@ -346,57 +348,74 @@ class TopModuleTest extends AnyFreeSpec with ChiselScalatestTester {
       new TopModuleBlock(80, 60, 4)
     ) // 20-bit coefficients, 4 taps
     .withAnnotations(Seq(WriteVcdAnnotation)) { dut =>
-      val steps = 500      
-      // Signal containers
-      val perfectRemoteTx = scala.collection.mutable.ArrayBuffer[Int]()
-      val localTxNoise0 = scala.collection.mutable.ArrayBuffer[Int]()
-      val localTxNoise1 = scala.collection.mutable.ArrayBuffer[Int]()
-      val localTxNoise2 = scala.collection.mutable.ArrayBuffer[Int]()
-      val localTxNoise3 = scala.collection.mutable.ArrayBuffer[Int]()
-      val receivedNoisySignal = scala.collection.mutable.ArrayBuffer[Int]()
-      val cleanedOutputs = scala.collection.mutable.ArrayBuffer[Int]()
+      // val steps = 500      
+      // // Signal containers
+      // val perfectRemoteTx = scala.collection.mutable.ArrayBuffer[Int]()
+      // val localTxNoise0 = scala.collection.mutable.ArrayBuffer[Int]()
+      // val localTxNoise1 = scala.collection.mutable.ArrayBuffer[Int]()
+      // val localTxNoise2 = scala.collection.mutable.ArrayBuffer[Int]()
+      // val localTxNoise3 = scala.collection.mutable.ArrayBuffer[Int]()
+      // val receivedNoisySignal = scala.collection.mutable.ArrayBuffer[Int]()
+      // val cleanedOutputs = scala.collection.mutable.ArrayBuffer[Int]()
 
-      // 1. Generate independent signals
-      var remoteSignal = Random.between(-4, 4)  // Perfect data we want to recover
-      var localNoise0 = Random.between(-4, 4)    // Local TX interference
-      var localNoise1 = Random.between(-4, 4)    // Local TX interference
-      var localNoise2 = Random.between(-4, 4)    // Local TX interference
-      var localNoise3 = Random.between(-4, 4)    // Local TX interference
+      // // 1. Generate independent signals
+      // var remoteSignal = Random.between(-4, 4)  // Perfect data we want to recover
+      // var localNoise0 = Random.between(-4, 4)    // Local TX interference
+      // var localNoise1 = Random.between(-4, 4)    // Local TX interference
+      // var localNoise2 = Random.between(-4, 4)    // Local TX interference
+      // var localNoise3 = Random.between(-4, 4)    // Local TX interference
 
-      for (i <- 0 until steps) {
-        remoteSignal = (remoteSignal + Random.between(-3, 4)).max(-100).min(100)
-        localNoise0 = (localNoise0 + Random.between(-2, 3)).max(-32).min(31)
-        localNoise1 = (localNoise1 + Random.between(-2, 3)).max(-32).min(31)
-        localNoise2 = (localNoise2 + Random.between(-2, 3)).max(-32).min(31)
-        localNoise3 = (localNoise3 + Random.between(-2, 3)).max(-32).min(31)
+      // for (i <- 0 until steps) {
+      //   remoteSignal = (remoteSignal + Random.between(-3, 4)).max(-100).min(100)
+      //   localNoise0 = (localNoise0 + Random.between(-2, 3)).max(-32).min(31)
+      //   localNoise1 = (localNoise1 + Random.between(-2, 3)).max(-32).min(31)
+      //   localNoise2 = (localNoise2 + Random.between(-2, 3)).max(-32).min(31)
+      //   localNoise3 = (localNoise3 + Random.between(-2, 3)).max(-32).min(31)
 
-        // val channelNoise = (Random.nextGaussian() * noiseAmplitude).round.toInt
-        val receivedSignal = remoteSignal + (localNoise0 >> 3) + (localNoise1 >> 4) + (localNoise2 >> 4) + (localNoise2 >> 4) // + channelNoise  // Scale local noise
+      //   // val channelNoise = (Random.nextGaussian() * noiseAmplitude).round.toInt
+      //   val receivedSignal = remoteSignal + (localNoise0 >> 3) + (localNoise1 >> 4) + (localNoise2 >> 4) + (localNoise2 >> 4) // + channelNoise  // Scale local noise
 
         // dut.io.din.poke(localNoise.S(6.W))       // Local TX interference we know about
         // dut.io.desired.poke(receivedSignal.S(8.W)) // Received signal (remote + noise)
         // dut.io.dinValid.poke(true.B)
         // dut.clock.step()
+        val lines = Source.fromFile("random_signals_patterned.csv").getLines().drop(1) // skip header
+        val data = lines.map(_.split(",").map(_.toInt)).toArray
+        val cleanedOutputs = scala.collection.mutable.ArrayBuffer[Int]()
 
-        dut.io.tx0.poke(localNoise0.S(6.W))
-        dut.io.tx1.poke(localNoise1.S(6.W))
-        dut.io.tx2.poke(localNoise2.S(6.W))
-        dut.io.tx3.poke(localNoise3.S(6.W))
-        dut.io.txValid.poke(true.B)
-        dut.io.desired.poke(receivedSignal.S(8.W))
-        dut.clock.step()
+        for (i <- data.indices) {
+          val Array(remote, tx0, tx1, tx2, tx3) = data(i)
+          val recieved = remote + (tx0 >> 3) + (tx1 >> 4) + (tx2 >> 4) + (tx3 >> 4)
+          dut.io.tx0.poke(tx0.S(6.W))
+          dut.io.tx1.poke(tx1.S(6.W))
+          dut.io.tx2.poke(tx2.S(6.W))
+          dut.io.tx3.poke(tx3.S(6.W))
+          dut.io.txValid.poke(true.B)
+          dut.io.desired.poke(recieved.S(8.W))
+          dut.clock.step()
+          cleanedOutputs += (dut.io.desiredCancelled.peek().litValue.toInt)
+          println(s"$i, $remote, $recieved, ${cleanedOutputs.last}")
+        }
 
-        perfectRemoteTx += remoteSignal
-        localTxNoise0 += localNoise0
-        localTxNoise1 += localNoise1
-        localTxNoise2 += localNoise2
-        localTxNoise3 += localNoise3
-        receivedNoisySignal += receivedSignal
-        cleanedOutputs += (dut.io.desiredCancelled.peek().litValue.toInt)
+        // dut.io.tx0.poke(localNoise0.S(6.W))
+        // dut.io.tx1.poke(localNoise1.S(6.W))
+        // dut.io.tx2.poke(localNoise2.S(6.W))
+        // dut.io.tx3.poke(localNoise3.S(6.W))
+        // dut.io.txValid.poke(true.B)
+        // dut.io.desired.poke(receivedSignal.S(8.W))
+        // dut.clock.step()
 
-        println(s"$i, $remoteSignal, $receivedSignal, ${cleanedOutputs.last}")
+        // perfectRemoteTx += remoteSignal
+        // localTxNoise0 += localNoise0
+        // localTxNoise1 += localNoise1
+        // localTxNoise2 += localNoise2
+        // localTxNoise3 += localNoise3
+        // receivedNoisySignal += receivedSignal
+        // cleanedOutputs += (dut.io.desiredCancelled.peek().litValue.toInt)
+
+        // println(s"$i, $remoteSignal, $receivedSignal, ${cleanedOutputs.last}")
       }
     }
-  }
+  // }
 
 }
