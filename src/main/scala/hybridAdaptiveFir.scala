@@ -9,7 +9,7 @@ class HybridAdaptiveFIRFilter(val tapCount: Int, val segmentSize: Int, val gamma
   val io = IO(new Bundle {
     val din          = Input(SInt(7.W))
     val dinValid     = Input(Bool())
-    val dout         = Output(SInt(10.W))
+    val dout         = Output(SInt(20.W))
     val desired      = Input(SInt(8.W))
     val error        = Input(SInt(20.W))
 

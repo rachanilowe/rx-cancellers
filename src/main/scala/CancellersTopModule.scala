@@ -58,10 +58,10 @@ class CancellersTopModule(val echoTapCount: Int, val nextTapCount: Int, val segS
     nextCanceller2.io.dinValid := Mux(io.txValid, true.B, false.B)
     nextCanceller3.io.dinValid := Mux(io.txValid, true.B, false.B)
 
-    val echoShift = WireInit(0.S(10.W))
-    val nextCanceller1Shift = WireInit(0.S(10.W))
-    val nextCanceller2Shift = WireInit(0.S(10.W))
-    val nextCanceller3Shift = WireInit(0.S(10.W))
+    val echoShift = WireInit(0.S(20.W))
+    val nextCanceller1Shift = WireInit(0.S(20.W))
+    val nextCanceller2Shift = WireInit(0.S(20.W))
+    val nextCanceller3Shift = WireInit(0.S(20.W))
     val firOutput = WireInit(0.S(8.W))
     echoShift := echoCanceller.io.dout >> 9
     nextCanceller1Shift := nextCanceller1.io.dout >> 9
