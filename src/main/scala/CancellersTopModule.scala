@@ -79,7 +79,7 @@ class CancellersTopModule(val echoTapCount: Int, val nextTapCount: Int, val segS
     // if tx is not valid input then we are not cancelling anything
     val total = RegInit(0.S(14.W))
     total := echoCanceller.io.dout + nextCanceller1.io.dout + nextCanceller2.io.dout + nextCanceller3.io.dout
-    val sub = desiredReg - (total >> 2)
+    val sub = desiredReg - (total >> 3)
     io.desiredCancelled := sub
 }
 
