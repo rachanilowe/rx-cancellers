@@ -3,7 +3,7 @@ package cancellers
 import chisel3._
 import chisel3.util._
 
-class FIRSegment(val segmentSize: Int) extends Module {
+class FIRSegment(val segmentSize: Int, val gammaFactor: Int, val muFactor: Int) extends Module {
   val io = IO(new Bundle {
     val inputs       = Input(Vec(segmentSize, SInt(7.W)))
     val weightCalcIns = Input(Vec(segmentSize, SInt(7.W))) // the delay of inputs for weight calculation
@@ -30,7 +30,7 @@ class FIRSegment(val segmentSize: Int) extends Module {
       // TODO: implement tap-leakage algorithm
       val deltaW = (io.weightCalcIns(i) * (io.error))  // TODO: switch to shift later
       // val weightUpdate = ((weights(i))) - ((deltaW >> 7))
-      val weightUpdate = ((511.S * weights(i)) >> 9) + ((deltaW >> 6))
+      val weightUpdate = ((((1 << gammaFactor) - 1).asSInt * weights(i)) >> gammaFactor) + ((deltaW >> muFactor))
       // val weightUpdate = ((5.S * weights(i)) >> 8) - ((3.S * deltaW) >> 4)
       // weights(i) := Mux(weightUpdate > maxWeight, maxWeight, Mux(weightUpdate < minWeight, minWeight, weightUpdate))
       weights(i) := weightUpdate

@@ -3,7 +3,7 @@ package cancellers
 import chisel3._
 import chisel3.util._
 
-class HybridAdaptiveFIRFilter(val tapCount: Int, val segmentSize: Int) extends Module {
+class HybridAdaptiveFIRFilter(val tapCount: Int, val segmentSize: Int, val gammaFactor: Int, val muFactor: Int) extends Module {
   require(tapCount % segmentSize == 0, "tapCount must be divisible by numSegments")
   // we can prob just have it be 4 bc 60 and 80 are both divisible by 4
   val io = IO(new Bundle {
@@ -11,6 +11,7 @@ class HybridAdaptiveFIRFilter(val tapCount: Int, val segmentSize: Int) extends M
     val dinValid     = Input(Bool())
     val dout         = Output(SInt(10.W))
     val desired      = Input(SInt(8.W))
+    val error        = Input(SInt(20.W))
 
     // For debugging
     val weightPeek   = Output(Vec(segmentSize, SInt(16.W)))
@@ -35,7 +36,7 @@ class HybridAdaptiveFIRFilter(val tapCount: Int, val segmentSize: Int) extends M
   val desiredDelayed = RegInit(0.S(8.W))
 
   // each group is a fir filter so we can use a simple fir module
-  val segments = Seq.fill(numGroups)(Module(new FIRSegment(segmentSize)))
+  val segments = Seq.fill(numGroups)(Module(new FIRSegment(segmentSize, gammaFactor, muFactor)))
 
   for ((seg, idx) <- segments.zipWithIndex) {
     seg.io.inputs := VecInit(Seq.fill(segmentSize)(0.S(7.W)))
@@ -72,9 +73,9 @@ class HybridAdaptiveFIRFilter(val tapCount: Int, val segmentSize: Int) extends M
     }
   }
 
-  val firOutput = (segments(0).io.dout) >> 7
-  desiredDelayed := io.desired
-  val error = desiredDelayed - firOutput
+  val firOutput = (segments(0).io.dout)
+  // desiredDelayed := io.desired
+  // val error = desiredDelayed - firOutput
 
   when(io.dinValid) {
     for (i <- 0 until numGroups) {
@@ -88,7 +89,7 @@ class HybridAdaptiveFIRFilter(val tapCount: Int, val segmentSize: Int) extends M
       // set error
       // This is when we are trying to feed error * mu directly into the final FIRSegment
       if (i == numGroups - 1) {
-        segments(i).io.error := error
+        segments(i).io.error := io.error
       } else {
         segments(i).io.error := errorShifters(numGroups - i - 2)
       }
@@ -100,7 +101,7 @@ class HybridAdaptiveFIRFilter(val tapCount: Int, val segmentSize: Int) extends M
 
   when (io.dinValid) {
       // Shift the weight adjustment
-    errorShifters(0) := error // mu = 1/32
+    errorShifters(0) := io.error // mu = 1/32
     for (i <- 1 until numGroups - 1) {
       errorShifters(i) := errorShifters(i - 1)
     }
