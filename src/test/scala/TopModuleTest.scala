@@ -152,12 +152,12 @@ class TopModuleTest extends AnyFreeSpec with ChiselScalatestTester {
   "same data" in {
     test(
       new TopModuleBlock(
-    echoTapCount = 20,  // Number of taps for echo canceller
-    nextTapCount = 12,  // Number of taps for NEXT cancellers
-    segSizeEcho = 5,    // Number of segments for hybrid FIR
-    segSizeNext = 3,
+    echoTapCount = 60,  // Number of taps for echo canceller
+    nextTapCount = 40,  // Number of taps for NEXT cancellers
+    segSizeEcho = 6,    // Number of segments for hybrid FIR
+    segSizeNext = 4,
     echoGammaFactor = 9,
-    echoMuFactor = 5,
+    echoMuFactor = 3,
     nextGammaFactor = 3, 
     nextMuFactor = 6
   )
