@@ -22,14 +22,13 @@ trait RxCancellerTopIO extends Bundle {
     // val desiredCancelled = Output(SInt(18.W)) // Cancelled RX signal
 }
 
-class CancellersTopModule(val echoTapCount: Int, val nextTapCount: Int, val segSize: Int) extends Module {
+class CancellersTopModule(val echoTapCount: Int, val nextTapCount: Int, val segSizeEcho: Int, val segSizeNext: Int, val echoGammaFactor: Int, val echoMuFactor: Int, val nextGammaFactor: Int, val nextMuFactor: Int) extends Module {
     val io = IO(new Bundle {
-      val tx0 = Input(SInt(6.W)) // echo
-      val tx1 = Input(SInt(6.W)) // next 1
-      val tx2 = Input(SInt(6.W)) // next 2
-      val tx3 = Input(SInt(6.W)) // next3
-      // don't know yet how TX digial will be outputing
-      val txValid = Input(Bool()) // per Richard only need tx valid
+      val tx0 = Input(SInt(3.W)) // echo
+      val tx1 = Input(SInt(3.W)) // next 1
+      val tx2 = Input(SInt(3.W)) // next 2
+      val tx3 = Input(SInt(3.W)) // next3
+      val txValid = Input(Bool())
 
       // val doutValid = Output(Bool()) 
       val desired   = Input(SInt(8.W)) // RX signal
@@ -50,10 +49,11 @@ class CancellersTopModule(val echoTapCount: Int, val nextTapCount: Int, val segS
       validReg := io.txValid
 
     // Instantiate three NEXT cancellers and one echo canceller
-    val echoCanceller = Module(new HybridAdaptiveFIRFilter(echoTapCount, segSize))
-    val nextCanceller1 = Module(new HybridAdaptiveFIRFilter(nextTapCount, segSize))
-    val nextCanceller2 = Module(new HybridAdaptiveFIRFilter(nextTapCount, segSize))
-    val nextCanceller3 = Module(new HybridAdaptiveFIRFilter(nextTapCount, segSize))
+    val echoCanceller = Module(new HybridAdaptiveFIRFilter(echoTapCount, segSizeEcho, echoGammaFactor, echoMuFactor))
+    val nextCanceller1 = Module(new HybridAdaptiveFIRFilter(nextTapCount, segSizeNext, nextGammaFactor, nextMuFactor))
+    val nextCanceller2 = Module(new HybridAdaptiveFIRFilter(nextTapCount, segSizeNext, nextGammaFactor, nextMuFactor))
+    val nextCanceller3 = Module(new HybridAdaptiveFIRFilter(nextTapCount, segSizeNext, nextGammaFactor, nextMuFactor))
+    val desiredDelayed = RegInit(0.S(8.W))
     
     echoCanceller.io.din := io.tx0
     nextCanceller1.io.din := io.tx1
@@ -70,17 +70,27 @@ class CancellersTopModule(val echoTapCount: Int, val nextTapCount: Int, val segS
     nextCanceller2.io.dinValid := Mux(io.txValid, true.B, false.B)
     nextCanceller3.io.dinValid := Mux(io.txValid, true.B, false.B)
 
-    
+    val echoShift = WireInit(0.S(16.W))
+    val nextCanceller1Shift = WireInit(0.S(16.W))
+    val nextCanceller2Shift = WireInit(0.S(16.W))
+    val nextCanceller3Shift = WireInit(0.S(16.W))
+    val firOutput = WireInit(0.S(8.W))
 
-    // Might also need to check if the desired signal is valid?
-    // val validOutput = echoCanceller.io.doutValid & nextCanceller1.io.doutValid & nextCanceller2.io.doutValid & nextCanceller3.io.doutValid
-    // io.doutValid := validOutput
-    // Filtered data
-    // if tx is not valid input then we are not cancelling anything
-    val total = RegInit(0.S(14.W))
-    total := echoCanceller.io.dout + nextCanceller1.io.dout + nextCanceller2.io.dout + nextCanceller3.io.dout
-    val sub = desiredReg - (total >> 3)
-    io.desiredCancelled := sub
+    echoShift := echoCanceller.io.dout >> 11
+    nextCanceller1Shift := nextCanceller1.io.dout >> 11
+    nextCanceller2Shift := nextCanceller2.io.dout >> 11
+    nextCanceller3Shift := nextCanceller3.io.dout >> 11
+    firOutput := echoShift + nextCanceller1Shift + nextCanceller2Shift + nextCanceller3Shift
+    desiredDelayed := io.desired
+
+    val error = desiredDelayed - firOutput
+
+    echoCanceller.io.error := error
+    nextCanceller1.io.error := error
+    nextCanceller2.io.error := error
+    nextCanceller3.io.error := error
+
+    io.desiredCancelled := error
 }
 
 // trait CancellersTop extends HasRegMap {
