@@ -7,16 +7,16 @@ class FIRSegment(val segmentSize: Int, val gammaFactor: Int, val muFactor: Int) 
   val io = IO(new Bundle {
     val inputs       = Input(Vec(segmentSize, SInt(3.W)))
     val weightCalcIns = Input(Vec(segmentSize, SInt(3.W))) // the delay of inputs for weight calculation
-    val dout      = Output(SInt(16.W))
-    val partialSum = Input(SInt(16.W))
+    val dout      = Output(SInt(13.W))
+    val partialSum = Input(SInt(13.W))
     val error = Input(SInt(10.W))
     val valid = Input(Bool())
 
     // For debugging
-    val weightPeek = Output(Vec(segmentSize, SInt(16.W)))
+    // val weightPeek = Output(Vec(segmentSize, SInt(16.W)))
   })
 
-  val weights = RegInit(VecInit(Seq.fill(segmentSize)(0.S(16.W))))
+  val weights = RegInit(VecInit(Seq.fill(segmentSize)(0.S(10.W))))
   when (io.valid) {
     for (i <- 0 until segmentSize) {
       val deltaW = (io.weightCalcIns(i) * (io.error))
@@ -29,5 +29,6 @@ class FIRSegment(val segmentSize: Int, val gammaFactor: Int, val muFactor: Int) 
 
   io.dout := sum + io.partialSum
 
-  io.weightPeek := weights
+  // Debugging
+  // io.weightPeek := weights
 }

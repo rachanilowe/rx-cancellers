@@ -37,10 +37,10 @@ class CancellersTopModule(val echoTapCount: Int, val nextTapCount: Int, val segS
 
       val desiredReg = RegInit(0.S(8.W))
       desiredReg := io.desired
-      val tx0Reg = RegInit(0.S(6.W))
-      val tx1Reg = RegInit(0.S(6.W))
-      val tx2Reg = RegInit(0.S(6.W))
-      val tx3Reg = RegInit(0.S(6.W))
+      val tx0Reg = RegInit(0.S(3.W))
+      val tx1Reg = RegInit(0.S(3.W))
+      val tx2Reg = RegInit(0.S(3.W))
+      val tx3Reg = RegInit(0.S(3.W))
       tx0Reg := io.tx0
       tx1Reg := io.tx1
       tx2Reg := io.tx2
@@ -70,16 +70,16 @@ class CancellersTopModule(val echoTapCount: Int, val nextTapCount: Int, val segS
     nextCanceller2.io.dinValid := Mux(io.txValid, true.B, false.B)
     nextCanceller3.io.dinValid := Mux(io.txValid, true.B, false.B)
 
-    val echoShift = WireInit(0.S(16.W))
-    val nextCanceller1Shift = WireInit(0.S(16.W))
-    val nextCanceller2Shift = WireInit(0.S(16.W))
-    val nextCanceller3Shift = WireInit(0.S(16.W))
+    val echoShift = WireInit(0.S(13.W))
+    val nextCanceller1Shift = WireInit(0.S(13.W))
+    val nextCanceller2Shift = WireInit(0.S(13.W))
+    val nextCanceller3Shift = WireInit(0.S(13.W))
     val firOutput = WireInit(0.S(8.W))
 
-    echoShift := echoCanceller.io.dout >> 11
-    nextCanceller1Shift := nextCanceller1.io.dout >> 11
-    nextCanceller2Shift := nextCanceller2.io.dout >> 11
-    nextCanceller3Shift := nextCanceller3.io.dout >> 11
+    echoShift := echoCanceller.io.dout >> 10
+    nextCanceller1Shift := nextCanceller1.io.dout >> 10
+    nextCanceller2Shift := nextCanceller2.io.dout >> 10
+    nextCanceller3Shift := nextCanceller3.io.dout >> 10
     firOutput := echoShift + nextCanceller1Shift + nextCanceller2Shift + nextCanceller3Shift
     desiredDelayed := io.desired
 

@@ -39,14 +39,14 @@ class TopModuleTest extends AnyFreeSpec with ChiselScalatestTester {
   "Simulated Incoming Rx Data" in {
     test(
   new TopModuleBlock(
-    echoTapCount = 18,  // Number of taps for echo canceller
-    nextTapCount = 4,  // Number of taps for NEXT cancellers
-    segSizeEcho = 9,    // Number of segments for hybrid FIR
-    segSizeNext = 2,
+    echoTapCount = 12,  // Number of taps for echo canceller
+    nextTapCount = 12,  // Number of taps for NEXT cancellers
+    segSizeEcho = 4,    // Number of segments for hybrid FIR
+    segSizeNext = 4,
     echoGammaFactor = 0,
-    echoMuFactor = 0,
+    echoMuFactor = 1,
     nextGammaFactor = 0, 
-    nextMuFactor = 0
+    nextMuFactor = 1
   )
 ).withAnnotations(Seq(WriteVcdAnnotation)) { dut =>
   val steps = 1000
@@ -250,4 +250,5 @@ class TopModuleTest extends AnyFreeSpec with ChiselScalatestTester {
       }
     }
   }
+}
 }
