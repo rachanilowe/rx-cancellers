@@ -9,7 +9,6 @@ import scala.io.Source
 import scala.util.Random
 
 import cancellers.CancellersTopModule
-// import cancellers.{LMSFIRFilter, LMSFIRFilter_Transpose}
 
 class TopModuleBlock(echoTapCount: Int, nextTapCount: Int, segSizeEcho: Int, segSizeNext: Int, val echoGammaFactor: Int, val echoMuFactor: Int, val nextGammaFactor: Int, val nextMuFactor: Int) extends Module {
     val io = IO(new Bundle {

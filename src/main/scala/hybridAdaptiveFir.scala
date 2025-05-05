@@ -111,5 +111,4 @@ class HybridAdaptiveFIRFilter(val tapCount: Int, val segmentSize: Int, val gamma
   // io.errors := errorShifters
   // io.inputWeightShifters := inputWeightShifters
   // io.weightPeek := segments(0).io.weightPeek
-
 }

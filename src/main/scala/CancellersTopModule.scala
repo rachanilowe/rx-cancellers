@@ -28,8 +28,7 @@ class CancellersTopModule(val echoTapCount: Int, val nextTapCount: Int, val segS
       val tx1 = Input(SInt(3.W)) // next 1
       val tx2 = Input(SInt(3.W)) // next 2
       val tx3 = Input(SInt(3.W)) // next3
-      // don't know yet how TX digial will be outputing
-      val txValid = Input(Bool()) // per Richard only need tx valid
+      val txValid = Input(Bool())
 
       // val doutValid = Output(Bool()) 
       val desired   = Input(SInt(8.W)) // RX signal
