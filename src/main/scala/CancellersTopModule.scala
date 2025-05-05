@@ -24,10 +24,10 @@ trait RxCancellerTopIO extends Bundle {
 
 class CancellersTopModule(val echoTapCount: Int, val nextTapCount: Int, val segSizeEcho: Int, val segSizeNext: Int, val echoGammaFactor: Int, val echoMuFactor: Int, val nextGammaFactor: Int, val nextMuFactor: Int) extends Module {
     val io = IO(new Bundle {
-      val tx0 = Input(SInt(6.W)) // echo
-      val tx1 = Input(SInt(6.W)) // next 1
-      val tx2 = Input(SInt(6.W)) // next 2
-      val tx3 = Input(SInt(6.W)) // next3
+      val tx0 = Input(SInt(3.W)) // echo
+      val tx1 = Input(SInt(3.W)) // next 1
+      val tx2 = Input(SInt(3.W)) // next 2
+      val tx3 = Input(SInt(3.W)) // next3
       // don't know yet how TX digial will be outputing
       val txValid = Input(Bool()) // per Richard only need tx valid
 
@@ -58,30 +58,27 @@ class CancellersTopModule(val echoTapCount: Int, val nextTapCount: Int, val segS
     nextCanceller2.io.dinValid := Mux(io.txValid, true.B, false.B)
     nextCanceller3.io.dinValid := Mux(io.txValid, true.B, false.B)
 
-    val echoShift = WireInit(0.S(20.W))
-    val nextCanceller1Shift = WireInit(0.S(20.W))
-    val nextCanceller2Shift = WireInit(0.S(20.W))
-    val nextCanceller3Shift = WireInit(0.S(20.W))
+    val echoShift = WireInit(0.S(16.W))
+    val nextCanceller1Shift = WireInit(0.S(16.W))
+    val nextCanceller2Shift = WireInit(0.S(16.W))
+    val nextCanceller3Shift = WireInit(0.S(16.W))
     val firOutput = WireInit(0.S(8.W))
-    echoShift := echoCanceller.io.dout >> 9
-    nextCanceller1Shift := nextCanceller1.io.dout >> 9
-    nextCanceller2Shift := nextCanceller2.io.dout >> 9
-    nextCanceller3Shift := nextCanceller3.io.dout >> 9
+
+    echoShift := echoCanceller.io.dout >> 11
+    nextCanceller1Shift := nextCanceller1.io.dout >> 11
+    nextCanceller2Shift := nextCanceller2.io.dout >> 11
+    nextCanceller3Shift := nextCanceller3.io.dout >> 11
     firOutput := echoShift + nextCanceller1Shift + nextCanceller2Shift + nextCanceller3Shift
     desiredDelayed := io.desired
-    val errorhi = desiredDelayed - firOutput
 
-    echoCanceller.io.error := errorhi
-    nextCanceller1.io.error := errorhi
-    nextCanceller2.io.error := errorhi
-    nextCanceller3.io.error := errorhi
+    val error = desiredDelayed - firOutput
 
-    // Might also need to check if the desired signal is valid?
-    // val validOutput = echoCanceller.io.doutValid & nextCanceller1.io.doutValid & nextCanceller2.io.doutValid & nextCanceller3.io.doutValid
-    // io.doutValid := validOutput
-    // Filtered data
-    // if tx is not valid input then we are not cancelling anything
-    io.desiredCancelled := errorhi
+    echoCanceller.io.error := error
+    nextCanceller1.io.error := error
+    nextCanceller2.io.error := error
+    nextCanceller3.io.error := error
+
+    io.desiredCancelled := error
 }
 
 // trait CancellersTop extends HasRegMap {
