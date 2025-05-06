@@ -9,9 +9,11 @@ class HybridAdaptiveFIRFilter(val tapCount: Int, val segmentSize: Int, val gamma
   val io = IO(new Bundle {
     val din          = Input(SInt(3.W))
     val dinValid     = Input(Bool())
-    val dout         = Output(SInt(13.W))
+    // val dout         = Output(SInt(14.W))
+    val dout         = Output(SInt(14.W))
     val desired      = Input(SInt(8.W))
-    val error        = Input(SInt(13.W))
+    // val error        = Input(SInt(14.W))
+    val error        = Input(SInt(8.W))
 
     // // For debugging
     // val weightPeek   = Output(Vec(segmentSize, SInt(16.W)))
@@ -25,14 +27,16 @@ class HybridAdaptiveFIRFilter(val tapCount: Int, val segmentSize: Int, val gamma
   val numInputReg = (numGroups * (segmentSize - 1)) + 1
 
   val inputShifters = RegInit(VecInit(Seq.fill(numInputReg)(0.S(3.W))))
-  val outputShifters = RegInit(VecInit(Seq.fill(numGroups - 1)(0.S(13.W))))
+  // val outputShifters = RegInit(VecInit(Seq.fill(numGroups - 1)(0.S(14.W))))
+  val outputShifters = RegInit(VecInit(Seq.fill(numGroups - 1)(0.S(14.W))))
 
   // Delay line for weight calculation for the input 
   val numInputTrackingRegs = ((numGroups * (segmentSize - 1)) + numGroups)
   val inputWeightShifters = RegInit(VecInit(Seq.fill(numInputTrackingRegs)(0.S(3.W))))
 
   // The last FIRSegment should be directly connected to (desired - dout) * mu
-  val errorShifters = RegInit(VecInit(Seq.fill(numGroups - 1)(0.S(13.W))))
+  // val errorShifters = RegInit(VecInit(Seq.fill(numGroups - 1)(0.S(14.W))))
+  val errorShifters = RegInit(VecInit(Seq.fill(numGroups - 1)(0.S(8.W))))
   val desiredDelayed = RegInit(0.S(8.W))
 
   // each group is a fir filter so we can use a simple fir module
@@ -41,8 +45,10 @@ class HybridAdaptiveFIRFilter(val tapCount: Int, val segmentSize: Int, val gamma
   for ((seg, idx) <- segments.zipWithIndex) {
     seg.io.inputs := VecInit(Seq.fill(segmentSize)(0.S(3.W)))
     seg.io.weightCalcIns := VecInit(Seq.fill(segmentSize)(0.S(3.W)))
-    seg.io.partialSum := 0.S(13.W)
-    seg.io.error := 0.S(13.W)
+    // seg.io.partialSum := 0.S(13.W)
+    // seg.io.error := 0.S(13.W)
+    seg.io.partialSum := 0.S(14.W)
+    seg.io.error := 0.S(8.W)
     seg.io.valid := false.B 
 
     // Connect output even if unused
