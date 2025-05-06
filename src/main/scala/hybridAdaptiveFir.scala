@@ -10,7 +10,7 @@ class HybridAdaptiveFIRFilter(val tapCount: Int, val segmentSize: Int, val gamma
     val din          = Input(SInt(3.W))
     val dinValid     = Input(Bool())
     // val dout         = Output(SInt(14.W))
-    val dout         = Output(SInt(14.W))
+    val dout         = Output(SInt(13.W))
     val desired      = Input(SInt(8.W))
     // val error        = Input(SInt(14.W))
     val error        = Input(SInt(8.W))
@@ -28,7 +28,7 @@ class HybridAdaptiveFIRFilter(val tapCount: Int, val segmentSize: Int, val gamma
 
   val inputShifters = RegInit(VecInit(Seq.fill(numInputReg)(0.S(3.W))))
   // val outputShifters = RegInit(VecInit(Seq.fill(numGroups - 1)(0.S(14.W))))
-  val outputShifters = RegInit(VecInit(Seq.fill(numGroups - 1)(0.S(14.W))))
+  val outputShifters = RegInit(VecInit(Seq.fill(numGroups - 1)(0.S(13.W))))
 
   // Delay line for weight calculation for the input 
   val numInputTrackingRegs = ((numGroups * (segmentSize - 1)) + numGroups)
@@ -47,7 +47,7 @@ class HybridAdaptiveFIRFilter(val tapCount: Int, val segmentSize: Int, val gamma
     seg.io.weightCalcIns := VecInit(Seq.fill(segmentSize)(0.S(3.W)))
     // seg.io.partialSum := 0.S(13.W)
     // seg.io.error := 0.S(13.W)
-    seg.io.partialSum := 0.S(14.W)
+    seg.io.partialSum := 0.S(13.W)
     seg.io.error := 0.S(8.W)
     seg.io.valid := false.B 
 

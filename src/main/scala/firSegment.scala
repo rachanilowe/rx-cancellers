@@ -9,8 +9,8 @@ class FIRSegment(val segmentSize: Int, val gammaFactor: Int, val muFactor: Int) 
     val weightCalcIns = Input(Vec(segmentSize, SInt(3.W))) // the delay of inputs for weight calculation
     // val dout      = Output(SInt(14.W))
     // val partialSum = Input(SInt(14.W))
-    val dout      = Output(SInt(14.W))
-    val partialSum = Input(SInt(14.W))
+    val dout      = Output(SInt(13.W))
+    val partialSum = Input(SInt(13.W))
     val error = Input(SInt(8.W))
     val valid = Input(Bool())
 
@@ -18,7 +18,7 @@ class FIRSegment(val segmentSize: Int, val gammaFactor: Int, val muFactor: Int) 
     // val weightPeek = Output(Vec(segmentSize, SInt(16.W)))
   })
 
-  val weights = RegInit(VecInit(Seq.fill(segmentSize)(0.S(7.W))))
+  val weights = RegInit(VecInit(Seq.fill(segmentSize)(0.S(8.W))))
   when (io.valid) {
     for (i <- 0 until segmentSize) {
       // val deltaW = (io.weightCalcIns(i) * (io.error))
@@ -43,9 +43,11 @@ class FIRSegment(val segmentSize: Int, val gammaFactor: Int, val muFactor: Int) 
     }
   }
 
-  val sum = weights.zip(io.inputs).map { case (w, d) => w * d }.reduce(_ + _)
+  // val sum = weights.zip(io.inputs).map { case (w, d) => w * d }.reduce(_ + _)
+  // dontTouch(sum)
 
-  io.dout := sum + io.partialSum
+  // Moved sum to dout
+  io.dout := weights.zip(io.inputs).map { case (w, d) => w * d }.reduce(_ + _) + io.partialSum
 
   // Debugging
   // io.weightPeek := weights
