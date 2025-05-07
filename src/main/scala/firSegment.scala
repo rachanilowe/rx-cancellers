@@ -3,7 +3,7 @@ package cancellers
 import chisel3._
 import chisel3.util._
 
-class FIRSegment(val segmentSize: Int) extends Module {
+class FIRSegment(val segmentSize: Int, val gammaFactor: Int, val muFactor: Int) extends Module {
   val io = IO(new Bundle {
     val inputs       = Input(Vec(segmentSize, SInt(3.W)))
     val weightCalcIns = Input(Vec(segmentSize, SInt(3.W))) // the delay of inputs for weight calculation
