@@ -5,41 +5,32 @@ import chisel3.util._
 
 class FIRSegment(val segmentSize: Int) extends Module {
   val io = IO(new Bundle {
-    val inputs       = Input(Vec(segmentSize, SInt(7.W)))
-    val weightCalcIns = Input(Vec(segmentSize, SInt(7.W))) // the delay of inputs for weight calculation
-    val dout      = Output(SInt(10.W))
-    val partialSum = Input(SInt(10.W))
-    val error = Input(SInt(10.W))
+    val inputs       = Input(Vec(segmentSize, SInt(3.W)))
+    val weightCalcIns = Input(Vec(segmentSize, SInt(3.W))) // the delay of inputs for weight calculation
+    // val dout      = Output(SInt(14.W))
+    // val partialSum = Input(SInt(14.W))
+    val dout      = Output(SInt(13.W))
+    val partialSum = Input(SInt(13.W))
+    val error = Input(SInt(8.W))
     val valid = Input(Bool())
 
     // For debugging
     val weightPeek = Output(Vec(segmentSize, SInt(10.W)))
   })
 
-  val weights = RegInit(VecInit(Seq.fill(segmentSize)(0.S(3.W))))
-
-  // Update weights using LMS: w_i(n+1) = w_i(n) + mu * e(n) * x(n-i+1)
-  // Tap-leakage update : w_i(n+1) = (1-alpha*mu)w_i(n) - alpha * e(n) * x(n)
+  val weights = RegInit(VecInit(Seq.fill(segmentSize)(0.S(8.W))))
   when (io.valid) {
     for (i <- 0 until segmentSize) {
-
-      // Cap weight values at 4-bit maximums on positive and negative side
-      val maxWeight = 3.S(3.W)  
-      val minWeight = -4.S(3.W) 
-      
-      // TODO: implement tap-leakage algorithm
-      val deltaW = (io.weightCalcIns(i) * (io.error))  // TODO: switch to shift later
-      val weightUpdate = (weights(i)) - (deltaW >> 5)
-      // val weightUpdate = ((127.S * weights(i)) >> 12) - ((63.S * deltaW) >> 6)
-      weights(i) := Mux(weightUpdate > maxWeight, maxWeight, Mux(weightUpdate < minWeight, minWeight, weightUpdate))
-      // weights(i) := weightUpdate
+      // Removed 1.max
+      weights(i) := (((((1 << gammaFactor) - 1)).asSInt * weights(i)) >> gammaFactor) + (((io.weightCalcIns(i) * (io.error)) >> muFactor))
     }
   }
 
-  val sum = weights.zip(io.inputs).map { case (w, d) => w * d }.reduce(_ + _)
+  // val sum = weights.zip(io.inputs).map { case (w, d) => w * d }.reduce(_ + _)
+  // dontTouch(sum)
 
-  // Attempt to shrink output data
-  io.dout := (sum + io.partialSum) >> 4
+  // Moved sum to dout
+  io.dout := weights.zip(io.inputs).map { case (w, d) => w * d }.reduce(_ + _) + io.partialSum
 
   io.weightPeek := weights
 }

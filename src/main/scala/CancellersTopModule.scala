@@ -9,7 +9,7 @@ import freechips.rocketchip.subsystem._
 import freechips.rocketchip.tilelink._
 
 trait RxCancellerTopIO extends Bundle {
-    // // different Tx signals coming from different twisted pairs
+    // different Tx signals coming from different twisted pairs
     // val tx0 = Input(SInt(3.W)) // echo
     // val tx1 = Input(SInt(3.W)) // next 1
     // val tx2 = Input(SInt(3.W)) // next 2
@@ -34,19 +34,19 @@ class CancellersTopModule(val echoTapCount: Int, val nextTapCount: Int, val segS
       val desired   = Input(SInt(8.W)) // RX signal
       val desiredCancelled = Output(SInt(8.W)) // Cancelled RX signal
     })
-
-      val desiredReg = RegInit(0.S(8.W))
-      desiredReg := io.desired
-      val tx0Reg = RegInit(0.S(3.W))
-      val tx1Reg = RegInit(0.S(3.W))
-      val tx2Reg = RegInit(0.S(3.W))
-      val tx3Reg = RegInit(0.S(3.W))
-      tx0Reg := io.tx0
-      tx1Reg := io.tx1
-      tx2Reg := io.tx2
-      tx3Reg := io.tx3
-      val validReg = RegInit(false.B)
-      validReg := io.txValid
+      // Commented this out
+      // val desiredReg = RegInit(0.S(8.W))
+      // desiredReg := io.desired
+      // val tx0Reg = RegInit(0.S(3.W))
+      // val tx1Reg = RegInit(0.S(3.W))
+      // val tx2Reg = RegInit(0.S(3.W))
+      // val tx3Reg = RegInit(0.S(3.W))
+      // tx0Reg := io.tx0
+      // tx1Reg := io.tx1
+      // tx2Reg := io.tx2
+      // tx3Reg := io.tx3
+      // val validReg = RegInit(false.B)
+      // validReg := io.txValid
 
     // Instantiate three NEXT cancellers and one echo canceller
     val echoCanceller = Module(new HybridAdaptiveFIRFilter(echoTapCount, segSizeEcho, echoGammaFactor, echoMuFactor))
@@ -70,38 +70,23 @@ class CancellersTopModule(val echoTapCount: Int, val nextTapCount: Int, val segS
     nextCanceller2.io.dinValid := Mux(io.txValid, true.B, false.B)
     nextCanceller3.io.dinValid := Mux(io.txValid, true.B, false.B)
 
-    // val echoShift = WireInit(0.S(5.W))
-    // val nextCanceller1Shift = WireInit(0.S(5.W))
-    // val nextCanceller2Shift = WireInit(0.S(5.W))
-    // val nextCanceller3Shift = WireInit(0.S(5.W))
-    // val firOutput = WireInit(0.S(8.W))
-    val echoShift = echoCanceller.io.dout >> 10
-    val nextCanceller1Shift = nextCanceller1.io.dout >> 10
-    val nextCanceller2Shift = nextCanceller2.io.dout >> 10
-    val nextCanceller3Shift = nextCanceller3.io.dout >> 10
-    val firOutput = echoShift + nextCanceller1Shift + nextCanceller2Shift + nextCanceller3Shift
+    val firOutput = WireInit(0.S(5.W))
 
-    // echoShift := echoCanceller.io.dout >> 10
-    // nextCanceller1Shift := nextCanceller1.io.dout >> 10
-    // nextCanceller2Shift := nextCanceller2.io.dout >> 10
-    // nextCanceller3Shift := nextCanceller3.io.dout >> 10
-    // firOutput := echoShift + nextCanceller1Shift + nextCanceller2Shift + nextCanceller3Shift
-
+    val cancellerShifts = VecInit(Seq(echoCanceller.io.dout >> 9, nextCanceller1.io.dout >> 9, nextCanceller2.io.dout >> 9, nextCanceller3.io.dout >> 9))
+    firOutput := cancellerShifts.reduce(_ + _)
     desiredDelayed := io.desired
+    
+    echoCanceller.io.error := desiredDelayed - (echoCanceller.io.dout >> 9)
+    nextCanceller1.io.error := desiredDelayed - (nextCanceller1.io.dout >> 9)
+    nextCanceller2.io.error := desiredDelayed - (nextCanceller2.io.dout >> 9)
+    nextCanceller3.io.error := desiredDelayed - (nextCanceller3.io.dout >> 9)
 
-    val error = desiredDelayed - firOutput
-
-    echoCanceller.io.error := error
-    nextCanceller1.io.error := error
-    nextCanceller2.io.error := error
-    nextCanceller3.io.error := error
-
-    io.desiredCancelled := error
+    io.desiredCancelled := desiredDelayed - firOutput
 }
 
 trait CancellersTop extends HasRegMap {
     val io: RxCancellerTopIO
-    val cancellers = Module(new CancellersTopModule(12, 12, 4, 4, 0, 1, 0, 1))
+    val cancellers = Module(new CancellersTopModule(6, 6, 1, 1, 5, 1, 4, 1))
 
     // Define a helper for read/write RegFields for SInt
     def RegFieldSInt(width: Int, reg: SInt): RegField = {
