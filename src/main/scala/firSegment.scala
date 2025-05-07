@@ -26,15 +26,15 @@ class FIRSegment(val segmentSize: Int) extends Module {
       val minWeight = -16.S(5.W) // Min for 16-bit signed integer
       
       val deltaW = (io.weightCalcIns(i) * io.error)  // TODO: switch to shift later
-      val weightUpdate = (weights(i) >> 2) + deltaW
-      weights(i) := Mux(weightUpdate > maxWeight, maxWeight, Mux(weightUpdate < minWeight, minWeight, weightUpdate))
+      val weightUpdate = weights(i) + deltaW
+      weights(i) := Mux(weightUpdate > maxWeight, maxWeight >> 2, Mux(weightUpdate < minWeight, minWeight >> 2, weightUpdate))
       // weights(i) := weights(i) - deltaW
     }
   }
 
   val sum = weights.zip(io.inputs).map { case (w, d) => w * d }.reduce(_ + _)
 
-  io.dout := sum + io.partialSum
+  io.dout := (sum + io.partialSum) >> 3
 
   // io.weightPeek := weights
 }
