@@ -30,8 +30,8 @@ param_sets = []
 
 # Or can add specific parameters to param_sets
 # Examples:
-param_sets.append({'echo_tap_count': 12, 'next_tap_count': 12, 'D_tx': 5, 'D_ch': 5, 'scale': 512, 'echo_gamma': 0.0625, 'echo_mu': 0.5625, 'next_gamma': 0.1875, 'next_mu': 0.5625})
-param_sets.append({'echo_tap_count': 18, 'next_tap_count': 18, 'D_tx': 17, 'D_ch': 17, 'scale': 2048, 'echo_gamma': 0.001953125, 'echo_mu': 0.5, 'next_gamma': 0.001953125, 'next_mu': 0.5})
+param_sets.append({'echo_tap_count': 12, 'next_tap_count': 12, 'delay': 5, 'scale': 512, 'echo_gamma': 0.0625, 'echo_mu': 0.5625, 'next_gamma': 0.1875, 'next_mu': 0.5625})
+param_sets.append({'echo_tap_count': 18, 'next_tap_count': 18, 'delay': 17, 'scale': 2048, 'echo_gamma': 0.001953125, 'echo_mu': 0.5, 'next_gamma': 0.001953125, 'next_mu': 0.5})
 
 best_mse = float("inf")
 best_config = None
@@ -49,7 +49,7 @@ channel_data_3 = [random.randint(-4, 3) for _ in range(N)]
 remote_signal_clean = [random.randint(-4, 3) for _ in range(N)]
 print("Running sims")
 for idx, params in enumerate(param_sets):
-    echo_tap_count, next_tap_count, D_tx, D_ch, scale, echo_gamma, echo_mu, next_gamma, next_mu = params.values()
+    echo_tap_count, next_tap_count, delay, scale, echo_gamma, echo_mu, next_gamma, next_mu = params.values()
     # print(params.values())
 
     # TODO: verify echo + NEXT noise model
@@ -92,26 +92,26 @@ for idx, params in enumerate(param_sets):
         x_3_buffer.insert(0, channel_data_3[T])
 
         # Trim buffers
-        max_D_L = max(D_tx + echo_tap_count, D_ch + next_tap_count)
+        max_D_L = max(delay + echo_tap_count, delay + next_tap_count)
         if len(x_tx_buffer) > max_D_L:
             x_tx_buffer.pop()
             x_1_buffer.pop()
             x_2_buffer.pop()
             x_3_buffer.pop()
 
-        if T >= max(D_tx, D_ch):
+        if T >= delay:
             def get_delayed_vector(buf, delay, taps):
                 return [buf[delay + i] if delay + i < len(buf) else 0 for i in range(taps)]
 
-            x_T_D_tx = get_delayed_vector(x_tx_buffer, D_tx, echo_tap_count)
-            x_T_D_1  = get_delayed_vector(x_1_buffer, D_ch, next_tap_count)
-            x_T_D_2  = get_delayed_vector(x_2_buffer, D_ch, next_tap_count)
-            x_T_D_3  = get_delayed_vector(x_3_buffer, D_ch, next_tap_count)
+            x_T_D_tx = get_delayed_vector(x_tx_buffer, delay, echo_tap_count)
+            x_T_D_1  = get_delayed_vector(x_1_buffer, delay, next_tap_count)
+            x_T_D_2  = get_delayed_vector(x_2_buffer, delay, next_tap_count)
+            x_T_D_3  = get_delayed_vector(x_3_buffer, delay, next_tap_count)
 
-            w_tx_d = delayed_w_tx[-D_tx - 1] if len(delayed_w_tx) > D_tx else [0] * echo_tap_count
-            w_1_d  = delayed_w_1[-D_ch - 1] if len(delayed_w_1) > D_ch else [0] * next_tap_count
-            w_2_d  = delayed_w_2[-D_ch - 1] if len(delayed_w_2) > D_ch else [0] * next_tap_count
-            w_3_d  = delayed_w_3[-D_ch - 1] if len(delayed_w_3) > D_ch else [0] * next_tap_count
+            w_tx_d = delayed_w_tx[-delay - 1] if len(delayed_w_tx) > delay else [0] * echo_tap_count
+            w_1_d  = delayed_w_1[-delay - 1] if len(delayed_w_1) > delay else [0] * next_tap_count
+            w_2_d  = delayed_w_2[-delay - 1] if len(delayed_w_2) > delay else [0] * next_tap_count
+            w_3_d  = delayed_w_3[-delay - 1] if len(delayed_w_3) > delay else [0] * next_tap_count
 
             y_tx = sum(w_tx_d[i] * x_T_D_tx[i] for i in range(echo_tap_count)) // scale
             y_1  = sum(w_1_d[i]  * x_T_D_1[i]  for i in range(next_tap_count)) // scale
@@ -120,13 +120,13 @@ for idx, params in enumerate(param_sets):
             total_y = y_tx + y_1 + y_2 + y_3
             output.append(total_y)
 
-            e_T_D = remote_signal[T - max(D_tx, D_ch)] - total_y
+            e_T_D = remote_signal[T - delay] - total_y
             cleaned.append(e_T_D)
 
-            error_tx = remote_signal[T - max(D_tx, D_ch)] - y_tx
-            error_1 = remote_signal[T - max(D_tx, D_ch)] - y_1
-            error_2 = remote_signal[T - max(D_tx, D_ch)] - y_2
-            error_3 = remote_signal[T - max(D_tx, D_ch)] - y_3
+            error_tx = remote_signal[T - delay] - y_tx
+            error_1 = remote_signal[T - delay] - y_1
+            error_2 = remote_signal[T - delay] - y_2
+            error_3 = remote_signal[T - delay] - y_3
 
             for i in range(echo_tap_count):
                 w_tx[i] = (int((1-(echo_gamma * echo_mu)) * (w_tx[i])) + int((error_tx * x_T_D_tx[i]) * echo_mu))
@@ -148,10 +148,10 @@ for idx, params in enumerate(param_sets):
             output.append(0)
             cleaned.append(0)
     for T in range(N):
-        mse = np.mean([(remote_signal_clean[i] - cleaned[i + max(D_tx, D_ch)])**2 for i in range(0, max(0, (T - max(D_tx, D_ch))))])
+        mse = np.mean([(remote_signal_clean[i] - cleaned[i + delay])**2 for i in range(0, max(0, (T - delay)))])
         local_mse.append(mse)
 
-    mse_data[f'Echo Len: {echo_tap_count}, NEXT Len: {next_tap_count}, Delay: {D_tx}, Scale: {scale}, Echo Gamma: {echo_gamma}, Echo Mu: {echo_mu}, NEXT Gamma: {next_gamma}, NEXT Mu: {next_mu}'] = local_mse
+    mse_data[f'Echo Len: {echo_tap_count}, NEXT Len: {next_tap_count}, Delay: {delay}, Scale: {scale}, Echo Gamma: {echo_gamma}, Echo Mu: {echo_mu}, NEXT Gamma: {next_gamma}, NEXT Mu: {next_mu}'] = local_mse
 
 for key, val in mse_data.items():
     plt.plot(val, label=key)
