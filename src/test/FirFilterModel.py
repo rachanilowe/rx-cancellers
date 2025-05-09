@@ -24,14 +24,14 @@ N = 1000            # Number of samples
 
 param_sets = []
 
-for echo_tap_count, next_tap_count, delay, scale, echo_gamma, echo_mu, next_gamma, next_mu in product(echo_tap_counts, next_tap_counts, D_values, scale_values, echo_gamma_values, echo_mu_values, next_gamma_values, next_mu_values):
-    if echo_tap_count % (delay + 1) == 0 and next_tap_count % (delay + 1) == 0 and echo_tap_count // (delay + 1) <= 2 and next_tap_count // (delay + 1) <= 2 and echo_gamma * echo_mu < 1 and next_gamma * next_mu < 1:
-        param_sets.append({'echo_tap_count': echo_tap_count, 'next_tap_count': next_tap_count, 'D_tx': delay, 'D_ch': delay, 'scale': scale, 'echo_gamma': echo_gamma, 'echo_mu': echo_mu, 'next_gamma': next_gamma, 'next_mu': next_mu, 'w_2_gamma': next_gamma, 'w_2_mu': next_mu, 'w_3_gamma': next_gamma, 'w_3_mu': next_mu})
+# for echo_tap_count, next_tap_count, delay, scale, echo_gamma, echo_mu, next_gamma, next_mu in product(echo_tap_counts, next_tap_counts, D_values, scale_values, echo_gamma_values, echo_mu_values, next_gamma_values, next_mu_values):
+#     if echo_tap_count % (delay + 1) == 0 and next_tap_count % (delay + 1) == 0 and echo_tap_count // (delay + 1) <= 2 and next_tap_count // (delay + 1) <= 2 and echo_gamma * echo_mu < 1 and next_gamma * next_mu < 1:
+#         param_sets.append({'echo_tap_count': echo_tap_count, 'next_tap_count': next_tap_count, 'D_tx': delay, 'D_ch': delay, 'scale': scale, 'echo_gamma': echo_gamma, 'echo_mu': echo_mu, 'next_gamma': next_gamma, 'next_mu': next_mu})
 
 # Or can add specific parameters to param_sets
 # Examples:
-param_sets.append({'echo_tap_count': 12, 'next_tap_count': 12, 'D_tx': 5, 'D_ch': 5, 'scale': 512, 'echo_gamma': 0.0625, 'echo_mu': 0.5625, 'next_gamma': 0.1875, 'next_mu': 0.5625, 'w_2_gamma': 0.1875, 'w_2_mu': 0.5625, 'w_3_gamma': 0.1875, 'w_3_mu': 0.5625})
-param_sets.append({'echo_tap_count': 18, 'next_tap_count': 18, 'D_tx': 17, 'D_ch': 17, 'scale': 2048, 'echo_gamma': 0.001953125, 'echo_mu': 0.5, 'next_gamma': 0.001953125, 'next_mu': 0.5, 'w_2_gamma': 0.001953125, 'w_2_mu': 0.5, 'w_3_gamma': 0.001953125, 'w_3_mu': 0.5})
+param_sets.append({'echo_tap_count': 12, 'next_tap_count': 12, 'D_tx': 5, 'D_ch': 5, 'scale': 512, 'echo_gamma': 0.0625, 'echo_mu': 0.5625, 'next_gamma': 0.1875, 'next_mu': 0.5625})
+param_sets.append({'echo_tap_count': 18, 'next_tap_count': 18, 'D_tx': 17, 'D_ch': 17, 'scale': 2048, 'echo_gamma': 0.001953125, 'echo_mu': 0.5, 'next_gamma': 0.001953125, 'next_mu': 0.5})
 
 best_mse = float("inf")
 best_config = None
@@ -49,7 +49,7 @@ channel_data_3 = [random.randint(-4, 3) for _ in range(N)]
 remote_signal_clean = [random.randint(-4, 3) for _ in range(N)]
 print("Running sims")
 for idx, params in enumerate(param_sets):
-    echo_tap_count, next_tap_count, D_tx, D_ch, scale, echo_gamma, echo_mu, next_gamma, next_mu, w_2_gamma, w_2_mu, w_3_gamma, w_3_mu = params.values()
+    echo_tap_count, next_tap_count, D_tx, D_ch, scale, echo_gamma, echo_mu, next_gamma, next_mu = params.values()
     # print(params.values())
 
     # TODO: verify echo + NEXT noise model
@@ -129,16 +129,16 @@ for idx, params in enumerate(param_sets):
             error_3 = remote_signal[T - max(D_tx, D_ch)] - y_3
 
             for i in range(echo_tap_count):
-                w_tx[i] = (int((1-(echo_gamma * next_mu)) * (w_tx[i])) + int((error_tx * x_T_D_tx[i]) * echo_mu))
+                w_tx[i] = (int((1-(echo_gamma * echo_mu)) * (w_tx[i])) + int((error_tx * x_T_D_tx[i]) * echo_mu))
 
             for i in range(next_tap_count):
                 w_1[i] = (int((1-(next_gamma * next_mu)) * (w_1[i])) + int((error_1 * x_T_D_1[i]) * next_mu))
 
             for i in range(next_tap_count):
-                w_2[i] = (int((1-(w_2_gamma * w_2_mu)) * (w_2[i])) + int((error_2 * x_T_D_2[i]) * w_2_mu))
+                w_2[i] = (int((1-(next_gamma * next_mu)) * (w_2[i])) + int((error_2 * x_T_D_2[i]) * next_mu))
 
             for i in range(next_tap_count):
-                w_3[i] = (int((1-(w_3_gamma * w_3_mu)) * (w_3[i])) + int((error_3 * x_T_D_3[i]) * w_3_mu))
+                w_3[i] = (int((1-(next_gamma * next_mu)) * (w_3[i])) + int((error_3 * x_T_D_3[i]) * next_mu))
                 
             delayed_w_tx.append(w_tx.copy())
             delayed_w_1.append(w_1.copy())
