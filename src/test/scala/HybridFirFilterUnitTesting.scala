@@ -1,192 +1,191 @@
-// package cancellers
+package cancellers
 
-// import chisel3._
-// import chiseltest._
-// import org.scalatest.freespec.AnyFreeSpec
-// import scala.collection.mutable.ArrayBuffer
-// import scala.util.Random
-// import scala.math._
+import chisel3._
+import chiseltest._
+import org.scalatest.freespec.AnyFreeSpec
+import scala.collection.mutable.ArrayBuffer
+import scala.util.Random
+import scala.math._
 
-// import cancellers.CancellersTopModule
-// // import cancellers.{LMSFIRFilter, LMSFIRFilter_Transpose}
+class HybridFir(val tapCount: Int, val segmentSize: Int, val gammaFactor: Int, val muFactor: Int) extends Module {
+    val io = IO(new Bundle {
+        val din          = Input(SInt(3.W))
+        val dinValid     = Input(Bool())
+        val dout         = Output(SInt(13.W))
+        val desired      = Input(SInt(8.W))
+        val error        = Input(SInt(8.W))
 
-// class HybridFir(tapCount: Int, segmentCount: Int) extends Module {
-//     val io = IO(new Bundle {
-//         val din          = Input(SInt(7.W))
-//         val dinValid     = Input(Bool())
-//         val dout         = Output(SInt(20.W))
-//         val desired      = Input(SInt(8.W))
+        // For debugging
+        // val weightPeek   = Output(Vec(segmentSize, SInt(10.W)))
+        // val errors       = Output(Vec(tapCount/segmentCount - 1, SInt(20.W)))
+        // val inputWeightShifters = Output(Vec(((tapCount/segmentCount * (segmentCount - 1)) + tapCount/segmentCount), SInt(10.W)))
+    })
+    val dut = Module(new HybridAdaptiveFIRFilter(tapCount, segmentSize, gammaFactor, muFactor))
+    dut.io.din := io.din
+    dut.io.dinValid := io.dinValid
+    dut.io.desired := io.desired
+    dut.io.error := io.error
+    // io.weightPeek := dut.io.weightPeek
+    io.dout := dut.io.dout
 
-//         // For debugging
-//         val weightPeek   = Output(Vec(segmentCount, SInt(10.W)))
-//         val errors       = Output(Vec(tapCount/segmentCount - 1, SInt(20.W)))
-//         val inputWeightShifters = Output(Vec(((tapCount/segmentCount * (segmentCount - 1)) + tapCount/segmentCount), SInt(10.W)))
-//     })
-//     val dut = Module(new HybridAdaptiveFIRFilter(tapCount, segmentCount))
-//     dut.io.din := io.din
-//     dut.io.dinValid := io.dinValid
-//     dut.io.desired := io.desired
-//     io.weightPeek := dut.io.weightPeek
-//     io.dout := dut.io.dout
-//     // io.input0 := dut.io.input0
+    // io.dout := dut.io.dout
+    // io.errors := dut.io.errors
+    // io.inputWeightShifters := dut.io.inputWeightShifters
+}            
 
-//     io.dout := dut.io.dout
-//     io.errors := dut.io.errors
-//     io.inputWeightShifters := dut.io.inputWeightShifters
-// }            
+class HybridFirFilterTest extends AnyFreeSpec with ChiselScalatestTester {
 
-// class HybridFirFilterTest extends AnyFreeSpec with ChiselScalatestTester {
+    // TODO: use actual data
+  "Basic echo functionality test" in {
+    test(
+      new HybridFir(
+        6, 3, 5, 1
+      )
+    ).withAnnotations(Seq(WriteVcdAnnotation)) { dut =>
+      dut.io.din.poke(2.S(3.W))
+      dut.io.dinValid.poke(true.B)
+      dut.io.error.poke(11.S)
 
-//     // TODO: use actual data
-//   "Basic echo functionality test" in {
-//     test(
-//       new HybridFir(
-//         6, 3
-//       )
-//     ).withAnnotations(Seq(WriteVcdAnnotation)) { dut =>
-//       dut.io.din.poke(2.S(3.W))
-//       dut.io.dinValid.poke(true.B)
-//       dut.io.desired.poke(64.S(18.W))
+      // din: 2, 2, 1, 0, -1, 2, 1, 1
+      // desired: 11, 8, 3, 4, -2, -6, -7, -5
+      // w(i+1) = ((31 * w(i)) // 32) + (e(i-1) // 2) * x(i-1)
 
-//       // CYCLE 0 -> 1: InputWeightShifters(0) = 2, inputShifters(0) = 2, errorShifter(0) = 0, dout = 0
-//       dut.clock.step()
-//       dut.io.din.poke(2.S(3.W))
-//       dut.io.desired.poke(64.S(18.W))
-//       dut.io.dout.expect(0.S)
-//       // CYCLE 1 -> 2: InputWeightShifters(1) = 2, inputShifters(1) = 2, errorShifter(0) = (64 - 0) >> 5, dout = 0
-//       dut.clock.step()
-//       dut.io.din.poke(2.S(3.W))
-//       dut.io.desired.poke(64.S(18.W))
-//       dut.io.dout.expect(0.S)
-//       // CYCLE 2 -> 3: InputWeightShifters(2) = 2, inputShifters(2) = 2, errorShifter(0) = (64 - 0) >> 5, dout = 0
-//       dut.clock.step()
-//       dut.io.din.poke(2.S(3.W))
-//       dut.io.desired.poke(64.S(18.W))
-//       dut.io.dout.expect(8.S)
-//       // CYCLE 3 -> 4: InputWeightShifters(3) = 2, inputShifters(3) = 2, errorShifter(0) = (64 - 0) >> 5
-//       dut.clock.step()
-//       dut.io.din.poke(2.S(3.W))
-//       dut.io.desired.poke(64.S(18.W))
-//       dut.io.dout.expect(24.S)
-//       // CYCLE 4 -> 5: InputWeightShifters(4) = 2, inputShifters(4) = 2, errorShifter(0) = (64 - 0) >> 5
-//       dut.clock.step()
-//       dut.io.din.poke(2.S(3.W))
-//       dut.io.desired.poke(64.S(18.W))
-//       dut.io.dout.expect(48.S)
-//       // CYCLE 5 -> 6: InputWeightShifters(5) = 2, inputShifters(4) = 2, errorShifter(0) = (64 - 0) >> 5
-//       dut.clock.step()
-//       dut.io.din.poke(2.S(3.W))
-//       dut.io.desired.poke(64.S(18.W))
-//       dut.io.dout.expect(80.S)
-//       // CYCLE 6 -> 7: InputWeightShifters(5) = 2, inputShifters(4) = 2, errorShifter(0) = (64 - 0) >> 5, dout = 4
-//       dut.clock.step()
-//       dut.io.din.poke(2.S(3.W))
-//       dut.io.desired.poke(64.S(18.W))
-//       dut.io.dout.expect(100.S)
+      // CYCLE 0 -> 1: InputWeightShifters(0) = 2, inputShifters(0) = 2, errorShifter(0) = 0, dout = 0
+      dut.clock.step()
+      dut.io.din.poke(2.S(3.W))
+      dut.io.error.poke(11.S)
+      dut.io.dout.expect(0.S)
+      // CYCLE 1 -> 2: InputWeightShifters(1) = 2, inputShifters(1) = 2, errorShifter(0) = (64 - 0) >> 5, dout = 0
+      dut.clock.step()
+      dut.io.din.poke(1.S(3.W))
+      dut.io.error.poke(8.S)
+      dut.io.dout.expect(0.S)
+      // CYCLE 2 -> 3: InputWeightShifters(2) = 2, inputShifters(2) = 2, errorShifter(0) = (64 - 0) >> 5, dout = 0
+      dut.clock.step()
+      dut.io.din.poke(0.S(3.W))
+      dut.io.error.poke(-8.S)
+      dut.io.dout.expect(11.S)
+      // CYCLE 3 -> 4: InputWeightShifters(3) = 2, inputShifters(3) = 2, errorShifter(0) = (64 - 0) >> 5
+      dut.clock.step()
+      dut.io.din.poke(-1.S(3.W))
+      dut.io.error.poke(-4.S)
+      dut.io.dout.expect(8.S)
+      // CYCLE 4 -> 5: InputWeightShifters(4) = 2, inputShifters(4) = 2, errorShifter(0) = (64 - 0) >> 5
+      dut.clock.step()
+      dut.io.din.poke(2.S(3.W))
+      dut.io.error.poke(-23.S)
+      dut.io.dout.expect(-21.S)
+      // CYCLE 5 -> 6: InputWeightShifters(5) = 2, inputShifters(4) = 2, errorShifter(0) = (64 - 0) >> 5
+      dut.clock.step()
+      dut.io.din.poke(1.S(3.W))
+      dut.io.error.poke(-17.S)
+      dut.io.dout.expect(23.S)
+      // CYCLE 6 -> 7: InputWeightShifters(5) = 2, inputShifters(4) = 2, errorShifter(0) = (64 - 0) >> 5, dout = 4
+      dut.clock.step()
+      dut.io.din.poke(1.S(3.W))
+      dut.io.dout.expect(17.S)
 
-//       dut.clock.step() // din gets added to first reg in input shifters
-//       // first check the output (0 * 2)
-//       // poke new in value and io.desired
-//       // clock step
-//       // new weight should be calculated 
-//       // check first inputWeightShifter, should be 2
+      dut.clock.step() // din gets added to first reg in input shifters
+      // first check the output (0 * 2)
+      // poke new in value and io.desired
+      // clock step
+      // new weight should be calculated 
+      // check first inputWeightShifter, should be 2
 
-//     }
-//   }
+    }
+  }
 
-//   // TODO: would be nice to work with realistic data
-//   // This is closer to what we'd be running with the correct FIRSegment size of 4 taps.
-//   "Testing a twelve-tap FIR with four-tap FIRSegments" in {
-//     test(
-//       new HybridFir(
-//         12, 4
-//       )
-//     ).withAnnotations(Seq(WriteVcdAnnotation)) { dut =>
-//       dut.io.din.poke(2.S(3.W))
-//       dut.io.dinValid.poke(true.B)
-//       dut.io.desired.poke(64.S(18.W))
-//       // println("Weight Peek: " + dut.io.weightPeek.peek())
+  // TODO: would be nice to work with realistic data
+  // This is closer to what we'd be running with the correct FIRSegment size of 4 taps.
+  "Testing a twelve-tap FIR with four-tap FIRSegments" in {
+    test(
+      new HybridFir(
+        12, 4, 5, 1
+      )
+    ).withAnnotations(Seq(WriteVcdAnnotation)) { dut =>
+      // din: 2, 2, 1, 0, -1, 2, 1, 1
+      // desired: 11, 8, 3, 4, -2, -6, -7, -5
+      // w(i+1) = ((31 * w(i)) // 32) + (e(i-2) // 2) * x(i-2)
+      dut.io.din.poke(2.S(3.W))
+      dut.io.dinValid.poke(true.B)
+      dut.io.error.poke(11.S)
 
-//       // CYCLE 0 -> 1: 
-//       // InputWeightShifters(0) = 2
-//       // inputShifters(0) = 2
-//       // errorShifter(0) = 0, dout = 0
-//       dut.clock.step()
-//       dut.io.din.poke(-2.S(3.W))
-//       dut.io.desired.poke(128.S(18.W))
-//       // println("Weight Peek: " + dut.io.weightPeek.peek())
-//       dut.io.dout.expect(0.S)
+      // CYCLE 0 -> 1: 
+      // InputWeightShifters(0) = 2
+      // inputShifters(0) = 2
+      // errorShifter(0) = 0, dout = 0
+      dut.clock.step()
+      dut.io.din.poke(2.S(3.W))
+      dut.io.error.poke(11.S)
+      dut.io.dout.expect(0.S)
 
-//       // CYCLE 1 -> 2: 
-//       // InputWeightShifters(0) = -2, InputWeightShifters(1) = 2
-//       // inputShifters(0) = -2, inputShifters(1) = 2
-//       // errorShifter(0) = -4, errorShifter(1) = 0
-//       dut.clock.step()
-//       dut.io.din.poke(1.S(3.W))
-//       dut.io.desired.poke(84.S(18.W))
-//       // println("Weight Peek: " + dut.io.weightPeek.peek())
-//       dut.io.dout.expect(0.S)
+      // CYCLE 1 -> 2: 
+      // InputWeightShifters(0) = -2, InputWeightShifters(1) = 2
+      // inputShifters(0) = -2, inputShifters(1) = 2
+      // errorShifter(0) = -4, errorShifter(1) = 0
+      dut.clock.step()
+      dut.io.din.poke(1.S(3.W))
+      dut.io.error.poke(8.S)
+      dut.io.dout.expect(0.S)
 
-//       // CYCLE 2 -> 3:
-//       // InputWeightShifters(0) = 1, InputWeightShifters(1) = -2, InputWeightShifters(2) = 2
-//       // inputShifters(0) = 1, inputShifters(1) = -2, inputShifters(2) = 2
-//       // errorShifter(0) = -3, errorShifter(1) = -4
-//       // Note that -84 >> 5 == 3
-//       // weight(0) = 8
-//       dut.clock.step()
-//       dut.io.din.poke(-1.S(3.W))
-//       dut.io.desired.poke(33.S(18.W))
-//       // println("Weight Peek: " + dut.io.weightPeek.peek())
-//       dut.io.dout.expect(0.S)
+      // CYCLE 2 -> 3:
+      // InputWeightShifters(0) = 1, InputWeightShifters(1) = -2, InputWeightShifters(2) = 2
+      // inputShifters(0) = 1, inputShifters(1) = -2, inputShifters(2) = 2
+      // errorShifter(0) = -3, errorShifter(1) = -4
+      // Note that -84 >> 5 == 3
+      // weight(0) = 8
+      dut.clock.step()
+      dut.io.din.poke(0.S(3.W))
+      dut.io.error.poke(3.S)
+      dut.io.dout.expect(0.S)
 
-//       // CYCLE 3 -> 4:
-//       // InputWeightShifters(0) = -1, InputWeightShifters(1) = 1, InputWeightShifters(2) = -2, InputWeightShifters(3) = 2
-//       // inputShifters(0) = -1, inputShifters(1) = 1, inputShifters(2) = -2, inputShifters(3) = 2
-//       // errorShifter(0) = -2, errorShifter(1) = -3
-//       // weight(0) = 2, weight(1) = 6 
-//       dut.clock.step()
-//       dut.io.din.poke(0.S(3.W))
-//       dut.io.desired.poke(47.S(18.W))
-//       // println("Weight Peek: " + dut.io.weightPeek.peek())
-//       dut.io.dout.expect(-8.S)
+      // CYCLE 3 -> 4:
+      // InputWeightShifters(0) = -1, InputWeightShifters(1) = 1, InputWeightShifters(2) = -2, InputWeightShifters(3) = 2
+      // inputShifters(0) = -1, inputShifters(1) = 1, inputShifters(2) = -2, inputShifters(3) = 2
+      // errorShifter(0) = -2, errorShifter(1) = -3
+      // weight(0) = 2, weight(1) = 6 
+      dut.clock.step()
+      dut.io.din.poke(-1.S(3.W))
+      dut.io.error.poke(4.S)
+      // println("Weight Peek: " + dut.io.weightPeek.peek())
+      dut.io.dout.expect(0.S)
 
-//       // CYCLE 4 -> 5:
-//       // InputWeightShifters(0) = 0, InputWeightShifters(1) = -1, InputWeightShifters(2) = 1, InputWeightShifters(3) = -2, InputWeightShifters(4) = 2
-//       // inputShifters(0) = 0, inputShifters(1) = -1, inputShifters(2) = 1, inputShifters(3) = -2, inputShifters(4) = 2
-//       // errorShifter(0) = -2, errorShifter(1) = -2
-//       // weight(0) = 4, weight(1) = 2, weight(2) = 4
-//       dut.clock.step()
-//       dut.io.din.poke(2.S(3.W))
-//       dut.io.desired.poke(22.S(18.W))
-//       // println("Weight Peek: " + dut.io.weightPeek.peek())
-//       dut.io.dout.expect(-6.S) // weight(0) * InputWeightShifters(0) + weight(1) * InputWeightShifters(1)
+      // CYCLE 4 -> 5:
+      // InputWeightShifters(0) = 0, InputWeightShifters(1) = -1, InputWeightShifters(2) = 1, InputWeightShifters(3) = -2, InputWeightShifters(4) = 2
+      // inputShifters(0) = 0, inputShifters(1) = -1, inputShifters(2) = 1, inputShifters(3) = -2, inputShifters(4) = 2
+      // errorShifter(0) = -2, errorShifter(1) = -2
+      // weight(0) = 4, weight(1) = 2, weight(2) = 4
+      dut.clock.step()
+      dut.io.din.poke(2.S(3.W))
+      dut.io.error.poke(16.S)
+      // println("Weight Peek: " + dut.io.weightPeek.peek())
+      dut.io.dout.expect(-18.S) // weight(0) * InputWeightShifters(0) + weight(1) * InputWeightShifters(1)
 
-//       // CYCLE 5 -> 6:
-//       // InputWeightShifters(0) = 2, InputWeightShifters(1) = 0, InputWeightShifters(2) = -1, InputWeightShifters(3) = 1, InputWeightShifters(4) = -2, InputWeightShifters(5) = 2
-//       // inputShifters(0) = 2, inputShifters(1) = 0, inputShifters(2) = -1, inputShifters(3) = 1, inputShifters(4) = -2, inputShifters(5) = 2
-//       // errorShifter(0) = -1, errorShifter(1) = -2
-//       // weight(0) = 2, weight(1) = 4, weight(2) = 0, weight(3) = 4
-//       dut.clock.step()
-//       dut.io.din.poke(1.S(3.W))
-//       dut.io.desired.poke(-11.S(18.W))
-//       // println("Weight Peek: " + dut.io.weightPeek.peek())
-//       dut.io.dout.expect(4.S) // weight(0) * InputWeightShifters(0) + weight(1) * InputWeightShifters(1) + weight(2) * InputWeightShifters(2)
+      // CYCLE 5 -> 6:
+      // InputWeightShifters(0) = 2, InputWeightShifters(1) = 0, InputWeightShifters(2) = -1, InputWeightShifters(3) = 1, InputWeightShifters(4) = -2, InputWeightShifters(5) = 2
+      // inputShifters(0) = 2, inputShifters(1) = 0, inputShifters(2) = -1, inputShifters(3) = 1, inputShifters(4) = -2, inputShifters(5) = 2
+      // errorShifter(0) = -1, errorShifter(1) = -2
+      // weight(0) = 2, weight(1) = 4, weight(2) = 0, weight(3) = 4
+      dut.clock.step()
+      dut.io.din.poke(1.S(3.W))
+      dut.io.error.poke(-32.S)
+      // println("Weight Peek: " + dut.io.weightPeek.peek())
+      dut.io.dout.expect(26.S) // weight(0) * InputWeightShifters(0) + weight(1) * InputWeightShifters(1) + weight(2) * InputWeightShifters(2)
 
-//       // CYCLE 6 -> 7:
-//       // InputWeightShifters(0) = 1, InputWeightShifters(1) = 2, InputWeightShifters(2) = 0, InputWeightShifters(3) = -1, InputWeightShifters(4) = 1, InputWeightShifters(5) = -2, InputWeightShifters(6) = 2
-//       // inputShifters(0) = 1, inputShifters(1) = 2, inputShifters(2) = 0, inputShifters(3) = -1, inputShifters(4) = 1, inputShifters(5) = -2, inputShifters(6) = 2
-//       // errorShifter(0) = 0, errorShifter(1) = -1
-//       dut.clock.step()
-//       dut.io.din.poke(-1.S(3.W))
-//       dut.io.desired.poke(33.S(18.W))
-//       // println("Weight Peek: " + dut.io.weightPeek.peek())
-//       dut.io.dout.expect(6.S)
-//     }
-//   }
+      // CYCLE 6 -> 7:
+      // InputWeightShifters(0) = 1, InputWeightShifters(1) = 2, InputWeightShifters(2) = 0, InputWeightShifters(3) = -1, InputWeightShifters(4) = 1, InputWeightShifters(5) = -2, InputWeightShifters(6) = 2
+      // inputShifters(0) = 1, inputShifters(1) = 2, inputShifters(2) = 0, inputShifters(3) = -1, inputShifters(4) = 1, inputShifters(5) = -2, inputShifters(6) = 2
+      // errorShifter(0) = 0, errorShifter(1) = -1
+      dut.clock.step()
+      dut.io.din.poke(1.S(3.W))
+      // println("Weight Peek: " + dut.io.weightPeek.peek())
+      dut.io.dout.expect(33.S)
+    }
+  }
 
 //   "Simulated Incoming Rx Data with One 'NEXT' Source" in {
 //     test(
-//       new HybridFir(12, 2)
+//       new HybridFir(12, 2, 5, 1)
 //     ) // 20-bit coefficients, 4 taps
 //     .withAnnotations(Seq(WriteVcdAnnotation)) { dut =>
 
@@ -306,9 +305,9 @@
 //         // println(s"$i, $remoteSignal, $receivedSignal, ${receivedSignal - cleanedOutputs.last}, ${noise}")
 //         // println(s"$i, $remoteSignal, $received, ${received - outputHistory.last}, ${localTx1}, ${next1}, ${dut.io.weightPeek.peek()}")
 //         // println(s"$i, Input: ${localTx1(i)}, Received: ${received(i)}, DOut: ${dut.io.dout.peek()}, Error: ${received(i) - outputHistory.last}, Weights: ${dut.io.weightPeek.peek()}")
-//         println(s"$i, ${localTx1(i)}, ${received(i)}, ${received(i) - outputHistory.last}, Weights: ${dut.io.weightPeek.peek()}")
+//         // println(s"$i, ${localTx1(i)}, ${received(i)}, ${received(i) - outputHistory.last}, Weights: ${dut.io.weightPeek.peek()}")
 //         // println(s"$i, Input: $localTx1, Received: $received, DOut: ${dut.io.dout.peek()}, Error: ${received - outputHistory.last}, Weights: ${dut.io.weightPeek.peek()}, Errors: ${dut.io.errors.peek()}, Delayed Inputs: ${dut.io.inputWeightShifters.peek()}")
 //       }
 //     }
 //   }
-// }
+}
