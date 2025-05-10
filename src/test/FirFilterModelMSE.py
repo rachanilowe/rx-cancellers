@@ -52,7 +52,6 @@ for idx, params in enumerate(param_sets):
     echo_tap_count, next_tap_count, delay, scale, echo_gamma, echo_mu, next_gamma, next_mu = params.values()
     # print(params.values())
 
-    # TODO: verify echo + NEXT noise model
     noise_tx = [tx_data[i] >> 1 for i in range(N)]
     noise_1  = [channel_data_1[i] >> 2 for i in range(N)]
     noise_2  = [channel_data_2[i] >> 2 for i in range(N)]
